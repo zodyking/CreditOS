@@ -1,0 +1,227 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Brand tokens (see brand/tokens/creditos.tokens.json) ─────────────────── */
+@theme {
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-ink-950: #070b14;
+  --color-ink-900: #0b1220;
+  --color-ink-800: #111b2e;
+  --color-ink-700: #182540;
+  --color-ink-600: #243454;
+  --color-ink-500: #3a4c6e;
+  --color-ink-400: #5b6b8a;
+  --color-ink-300: #7e8ba3;
+  --color-ink-200: #aeb9cf;
+  --color-ink-100: #e6eaf2;
+  --color-ink-50: #f6f8fb;
+
+  --color-verdigris-700: #0e7a71;
+  --color-verdigris-600: #12978c;
+  --color-verdigris-500: #19b3a6;
+  --color-verdigris-400: #35ccbf;
+  --color-verdigris-300: #7fe2d8;
+  --color-verdigris-100: #d8f7f3;
+
+  --color-aurum-600: #c9841c;
+  --color-aurum-500: #e9a23b;
+  --color-aurum-300: #f5c77a;
+  --color-aurum-100: #fcefd6;
+
+  --color-garnet-600: #c53a3f;
+  --color-garnet-500: #e5484d;
+  --color-garnet-300: #f39a9d;
+  --color-garnet-100: #fde2e3;
+
+  --color-fern-600: #2e9d5b;
+  --color-fern-500: #3dbe6e;
+  --color-fern-300: #8eddab;
+  --color-fern-100: #ddf5e6;
+
+  --color-azure-600: #2f6fe0;
+  --color-azure-500: #4c8dff;
+  --color-azure-300: #a6c4ff;
+  --color-azure-100: #e0ebff;
+
+  --color-orchid-600: #7e51e8;
+  --color-orchid-500: #9b6dff;
+  --color-orchid-300: #c9b3ff;
+  --color-orchid-100: #ede6ff;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --shadow-1: 0 1px 2px rgba(7, 11, 20, 0.08), 0 1px 1px rgba(7, 11, 20, 0.04);
+  --shadow-2: 0 4px 12px rgba(7, 11, 20, 0.12), 0 1px 3px rgba(7, 11, 20, 0.08);
+  --shadow-3: 0 16px 40px rgba(7, 11, 20, 0.22), 0 2px 6px rgba(7, 11, 20, 0.1);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.375rem;
+}
+
+/* ─── Semantic surface variables (light default, dark override) ────────────── */
+:root {
+  --bg: var(--color-ink-50);
+  --surface: #ffffff;
+  --surface-2: #fbfcfe;
+  --surface-3: var(--color-ink-100);
+  --border: var(--color-ink-100);
+  --border-strong: #d4dbe8;
+  --text: var(--color-ink-900);
+  --text-2: #475569;
+  --text-3: var(--color-ink-300);
+  --accent: var(--color-verdigris-600);
+  --accent-fg: #ffffff;
+  --ring: var(--color-verdigris-500);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: var(--color-ink-950);
+  --surface: var(--color-ink-800);
+  --surface-2: var(--color-ink-700);
+  --surface-3: var(--color-ink-600);
+  --border: #1d2a45;
+  --border-strong: var(--color-ink-600);
+  --text: #eef2f8;
+  --text-2: var(--color-ink-200);
+  --text-3: var(--color-ink-300);
+  --accent: var(--color-verdigris-500);
+  --accent-fg: var(--color-ink-950);
+  --ring: var(--color-verdigris-400);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+  }
+  body {
+    @apply bg-bg text-fg text-base;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--accent) 35%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight;
+  }
+  .num, .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-border rounded-lg shadow-1;
+  }
+  .card-pad {
+    @apply p-4 sm:p-5;
+  }
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.12em] text-fg-3;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium px-3.5 h-10 min-w-11 border border-transparent transition-colors select-none disabled:opacity-50 disabled:pointer-events-none cursor-pointer whitespace-nowrap;
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-xs;
+  }
+  .btn-primary {
+    @apply bg-accent text-accent-fg hover:brightness-110 active:brightness-95;
+  }
+  .btn-secondary {
+    @apply bg-surface-2 text-fg border-border-strong hover:bg-surface-3;
+  }
+  .btn-ghost {
+    @apply text-fg-2 hover:bg-surface-3 hover:text-fg;
+  }
+  .btn-danger {
+    @apply bg-garnet-500 text-white hover:bg-garnet-600;
+  }
+  .input {
+    @apply w-full h-10 rounded-md border border-border-strong bg-surface px-3 text-sm text-fg placeholder:text-fg-3 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30;
+  }
+  .textarea {
+    @apply w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-fg placeholder:text-fg-3 focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30;
+  }
+  .label {
+    @apply block text-xs font-medium text-fg-2 mb-1.5;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide whitespace-nowrap;
+  }
+  .table {
+    @apply w-full text-sm;
+  }
+  .table th {
+    @apply text-left eyebrow py-2.5 px-3 border-b border-border font-semibold;
+  }
+  .table td {
+    @apply py-2.5 px-3 border-b border-border/70 align-top;
+  }
+  .table tr:last-child td {
+    @apply border-b-0;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-md bg-surface-3;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .prose-letter {
+    @apply text-sm leading-relaxed whitespace-pre-wrap font-mono;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+.live-dot {
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}

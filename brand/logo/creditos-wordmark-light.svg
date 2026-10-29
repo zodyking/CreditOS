@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="72" viewBox="0 0 320 72" role="img" aria-label="CreditOS wordmark (for light backgrounds)">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16233D"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#35CCBF"/>
+      <stop offset="1" stop-color="#12978C"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4 4)">
+    <rect width="64" height="64" rx="16" fill="url(#tile)"/>
+    <path d="M42.93 18.98 A17 17 0 1 0 42.93 45.02" fill="none" stroke="url(#arc)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M21 32 H27 L30.5 24.5 L34 39.5 L37.5 32 H51" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="84" y="47" font-family="Inter, 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="700" letter-spacing="-1.2" fill="#0B1220">Credit<tspan fill="#12978C">OS</tspan></text>
+</svg>

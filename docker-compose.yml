@@ -1,0 +1,55 @@
+# Dokploy "Docker Compose" deployment (or plain `docker compose up -d`).
+# PostgreSQL is treated as EXTERNAL: point DATABASE_URL at your managed
+# instance or at a Dokploy-provisioned Postgres service. A commented-out
+# local Postgres service is included for quick evaluation only.
+services:
+  creditos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: creditos:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      APP_MODE: ${APP_MODE:-demo}
+      DATABASE_URL: ${DATABASE_URL}
+      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_DEFAULT_MODEL: ${OPENROUTER_DEFAULT_MODEL:-openai/gpt-4o-mini}
+      MAIL_OUTBOUND_PROVIDER: ${MAIL_OUTBOUND_PROVIDER:-sandbox}
+      MAIL_INBOUND_PROVIDER: ${MAIL_INBOUND_PROVIDER:-manual}
+      MAIL_WEBHOOK_SECRET: ${MAIL_WEBHOOK_SECRET:-}
+      DEMO_SEED: ${DEMO_SEED:-true}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+      DATA_DIR: /data
+    volumes:
+      - creditos-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # ── Optional local Postgres for evaluation only ────────────────────────────
+  # postgres:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: creditos
+  #     POSTGRES_PASSWORD: creditos
+  #     POSTGRES_DB: creditos
+  #   volumes:
+  #     - creditos-pg:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U creditos"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+volumes:
+  creditos-data:
+  # creditos-pg:

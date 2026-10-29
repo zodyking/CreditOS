@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="CreditOS  Credit intelligence, under your control.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#070B14"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.3" r="0.6">
+      <stop offset="0" stop-color="#19B3A6" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#19B3A6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16233D"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+    <linearGradient id="arc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#35CCBF"/>
+      <stop offset="1" stop-color="#12978C"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FFFFFF" stroke-opacity="0.04"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="320" rx="24" fill="url(#bg)"/>
+  <rect width="1200" height="320" rx="24" fill="url(#grid)"/>
+  <rect width="1200" height="320" rx="24" fill="url(#glow)"/>
+  <rect x="0.5" y="0.5" width="1199" height="319" rx="23.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.08"/>
+
+  <g transform="translate(72 96) scale(2)">
+    <rect width="64" height="64" rx="16" fill="url(#tile)"/>
+    <rect x="0.5" y="0.5" width="63" height="63" rx="15.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.14"/>
+    <path d="M42.93 18.98 A17 17 0 1 0 42.93 45.02" fill="none" stroke="url(#arc)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M21 32 H27 L30.5 24.5 L34 39.5 L37.5 32 H51" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="236" y="150" font-family="Inter, 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="72" font-weight="700" letter-spacing="-2.5" fill="#FFFFFF">Credit<tspan fill="#35CCBF">OS</tspan></text>
+  <text x="240" y="196" font-family="Inter, 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="26" font-weight="500" letter-spacing="-0.3" fill="#AEB9CF">Credit intelligence, under your control.</text>
+
+  <g font-family="'JetBrains Mono', 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="600" letter-spacing="1.2">
+    <rect x="240" y="226" width="126" height="30" rx="15" fill="#19B3A6" fill-opacity="0.14" stroke="#19B3A6" stroke-opacity="0.5"/>
+    <text x="303" y="245" text-anchor="middle" fill="#7FE2D8">THREE-BUREAU</text>
+    <rect x="378" y="226" width="144" height="30" rx="15" fill="#9B6DFF" fill-opacity="0.14" stroke="#9B6DFF" stroke-opacity="0.5"/>
+    <text x="450" y="245" text-anchor="middle" fill="#C9B3FF">AGENT COUNCIL</text>
+    <rect x="534" y="226" width="118" height="30" rx="15" fill="#E9A23B" fill-opacity="0.14" stroke="#E9A23B" stroke-opacity="0.5"/>
+    <text x="593" y="245" text-anchor="middle" fill="#F5C77A">MAILROOM</text>
+    <rect x="664" y="226" width="146" height="30" rx="15" fill="#4C8DFF" fill-opacity="0.14" stroke="#4C8DFF" stroke-opacity="0.5"/>
+    <text x="737" y="245" text-anchor="middle" fill="#A6C4FF">FREEZE CENTER</text>
+  </g>
+
+  <g transform="translate(900 70)" opacity="0.9">
+    <rect width="228" height="180" rx="16" fill="#111B2E" stroke="#FFFFFF" stroke-opacity="0.08"/>
+    <text x="18" y="30" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" letter-spacing="1.4" fill="#7E8BA3">COUNCIL BALLOT</text>
+    <g font-family="Inter, system-ui, sans-serif" font-size="13" fill="#E6EAF2">
+      <circle cx="26" cy="58" r="5" fill="#3DBE6E"/><text x="40" y="62">Evidence Analyst</text><text x="210" y="62" text-anchor="end" fill="#3DBE6E" font-weight="600">SUPPORT</text>
+      <circle cx="26" cy="84" r="5" fill="#3DBE6E"/><text x="40" y="88">Bureau Specialist</text><text x="210" y="88" text-anchor="end" fill="#3DBE6E" font-weight="600">SUPPORT</text>
+      <circle cx="26" cy="110" r="5" fill="#E5484D"/><text x="40" y="114">Adversarial Skeptic</text><text x="210" y="114" text-anchor="end" fill="#E5484D" font-weight="600">OPPOSE</text>
+      <circle cx="26" cy="136" r="5" fill="#3DBE6E"/><text x="40" y="140">Compliance Reviewer</text><text x="210" y="140" text-anchor="end" fill="#3DBE6E" font-weight="600">SUPPORT</text>
+    </g>
+    <rect x="18" y="154" width="192" height="6" rx="3" fill="#1B2740"/>
+    <rect x="18" y="154" width="150" height="6" rx="3" fill="#19B3A6"/>
+  </g>
+</svg>

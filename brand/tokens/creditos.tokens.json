@@ -1,0 +1,97 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "CreditOS",
+  "version": "1.0.0",
+  "color": {
+    "ink": {
+      "950": { "$value": "#070B14", "$type": "color", "$description": "Page background (dark)" },
+      "900": { "$value": "#0B1220", "$type": "color", "$description": "Brand ink / primary dark surface" },
+      "800": { "$value": "#111B2E", "$type": "color", "$description": "Card surface (dark)" },
+      "700": { "$value": "#182540", "$type": "color", "$description": "Elevated surface (dark)" },
+      "600": { "$value": "#243454", "$type": "color", "$description": "Borders (dark)" },
+      "500": { "$value": "#3A4C6E", "$type": "color" },
+      "400": { "$value": "#5B6B8A", "$type": "color", "$description": "Muted text (dark)" },
+      "300": { "$value": "#7E8BA3", "$type": "color" },
+      "200": { "$value": "#AEB9CF", "$type": "color", "$description": "Secondary text (dark)" },
+      "100": { "$value": "#E6EAF2", "$type": "color", "$description": "Borders (light)" },
+      "50": { "$value": "#F6F8FB", "$type": "color", "$description": "Page background (light)" }
+    },
+    "verdigris": {
+      "700": { "$value": "#0E7A71", "$type": "color" },
+      "600": { "$value": "#12978C", "$type": "color" },
+      "500": { "$value": "#19B3A6", "$type": "color", "$description": "Primary brand accent" },
+      "400": { "$value": "#35CCBF", "$type": "color" },
+      "300": { "$value": "#7FE2D8", "$type": "color" },
+      "100": { "$value": "#D8F7F3", "$type": "color" }
+    },
+    "aurum": {
+      "600": { "$value": "#C9841C", "$type": "color" },
+      "500": { "$value": "#E9A23B", "$type": "color", "$description": "Attention / awaiting approval" },
+      "300": { "$value": "#F5C77A", "$type": "color" },
+      "100": { "$value": "#FCEFD6", "$type": "color" }
+    },
+    "garnet": {
+      "600": { "$value": "#C53A3F", "$type": "color" },
+      "500": { "$value": "#E5484D", "$type": "color", "$description": "Danger / blocked / failed" },
+      "300": { "$value": "#F39A9D", "$type": "color" },
+      "100": { "$value": "#FDE2E3", "$type": "color" }
+    },
+    "fern": {
+      "600": { "$value": "#2E9D5B", "$type": "color" },
+      "500": { "$value": "#3DBE6E", "$type": "color", "$description": "Success / confirmed" },
+      "300": { "$value": "#8EDDAB", "$type": "color" },
+      "100": { "$value": "#DDF5E6", "$type": "color" }
+    },
+    "azure": {
+      "600": { "$value": "#2F6FE0", "$type": "color" },
+      "500": { "$value": "#4C8DFF", "$type": "color", "$description": "Informational" },
+      "300": { "$value": "#A6C4FF", "$type": "color" },
+      "100": { "$value": "#E0EBFF", "$type": "color" }
+    },
+    "orchid": {
+      "600": { "$value": "#7E51E8", "$type": "color" },
+      "500": { "$value": "#9B6DFF", "$type": "color", "$description": "Demo / Sandbox / AI-generated content marker" },
+      "300": { "$value": "#C9B3FF", "$type": "color" },
+      "100": { "$value": "#EDE6FF", "$type": "color" }
+    }
+  },
+  "font": {
+    "family": {
+      "sans": { "$value": "'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", "$type": "fontFamily" },
+      "mono": { "$value": "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace", "$type": "fontFamily" }
+    },
+    "size": {
+      "xs": { "$value": "0.75rem", "$type": "dimension" },
+      "sm": { "$value": "0.8125rem", "$type": "dimension" },
+      "base": { "$value": "0.9375rem", "$type": "dimension" },
+      "lg": { "$value": "1.0625rem", "$type": "dimension" },
+      "xl": { "$value": "1.25rem", "$type": "dimension" },
+      "2xl": { "$value": "1.5rem", "$type": "dimension" },
+      "3xl": { "$value": "1.875rem", "$type": "dimension" },
+      "4xl": { "$value": "2.375rem", "$type": "dimension" }
+    }
+  },
+  "space": {
+    "1": { "$value": "0.25rem", "$type": "dimension" },
+    "2": { "$value": "0.5rem", "$type": "dimension" },
+    "3": { "$value": "0.75rem", "$type": "dimension" },
+    "4": { "$value": "1rem", "$type": "dimension" },
+    "5": { "$value": "1.25rem", "$type": "dimension" },
+    "6": { "$value": "1.5rem", "$type": "dimension" },
+    "8": { "$value": "2rem", "$type": "dimension" },
+    "10": { "$value": "2.5rem", "$type": "dimension" },
+    "12": { "$value": "3rem", "$type": "dimension" }
+  },
+  "radius": {
+    "sm": { "$value": "6px", "$type": "dimension" },
+    "md": { "$value": "10px", "$type": "dimension" },
+    "lg": { "$value": "14px", "$type": "dimension" },
+    "xl": { "$value": "20px", "$type": "dimension" },
+    "pill": { "$value": "999px", "$type": "dimension" }
+  },
+  "elevation": {
+    "1": { "$value": "0 1px 2px rgba(7, 11, 20, 0.08), 0 1px 1px rgba(7, 11, 20, 0.04)", "$type": "shadow" },
+    "2": { "$value": "0 4px 12px rgba(7, 11, 20, 0.12), 0 1px 3px rgba(7, 11, 20, 0.08)", "$type": "shadow" },
+    "3": { "$value": "0 16px 40px rgba(7, 11, 20, 0.22), 0 2px 6px rgba(7, 11, 20, 0.10)", "$type": "shadow" }
+  }
+}

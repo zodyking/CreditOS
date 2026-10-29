@@ -1,0 +1,30 @@
+# Nuxt
+.nuxt
+.output
+.nitro
+.cache
+dist
+
+# Node
+node_modules
+*.log
+.pnpm-store
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Data
+data/
+!data/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Tests
+coverage
