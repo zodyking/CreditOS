@@ -33,6 +33,12 @@ const stepIndex = computed(() => (c.value ? CASE_PROGRESS_STEPS.findIndex(s => s
 const centerTab = ref<'council' | 'timeline' | 'letter'>('council')
 const selectedRunId = ref<string | null>(null)
 const selectedRun = computed(() => data.value?.runs.find(r => r.id === selectedRunId.value) ?? data.value?.runs[0] ?? null)
+const runSelectValue = computed({
+  get: () => selectedRun.value?.id ?? '',
+  set: (v: string) => {
+    selectedRunId.value = v || null
+  },
+})
 const activePlan = computed(() => data.value?.plans.find(p => p.status === 'active') ?? data.value?.plans[0] ?? null)
 const latestLetter = computed(() => data.value?.letters[0] ?? null)
 const docById = (docId: string | null | undefined) => data.value?.documents.find(d => d.id === docId) ?? null
@@ -268,7 +274,7 @@ const eventIcon: Record<string, string> = { status: 'lucide:git-commit-horizonta
             <div class="px-4 pt-3 border-b border-border flex flex-wrap items-center gap-1" role="tablist">
               <button v-for="t in [{ k: 'council', l: 'Council transcript', i: 'lucide:users-round' }, { k: 'timeline', l: 'Timeline', i: 'lucide:history' }, { k: 'letter', l: 'Letter', i: 'lucide:file-text' }]" :key="t.k" role="tab" :aria-selected="centerTab === t.k" class="px-3 py-2 text-sm font-medium border-b-2 -mb-px flex items-center gap-1.5 transition-colors" :class="centerTab === t.k ? 'border-accent text-fg' : 'border-transparent text-fg-3 hover:text-fg'" @click="centerTab = t.k as typeof centerTab"><Icon :name="t.i" class="size-4" /> {{ t.l }}</button>
               <div v-if="centerTab === 'council' && data.runs.length > 1" class="ml-auto pb-2">
-                <select v-model="selectedRunId" class="input !py-1 !h-auto text-xs w-auto" aria-label="Select council run">
+                <select v-model="runSelectValue" class="input !py-1 !h-auto text-xs w-auto" aria-label="Select council run">
                   <option v-for="(r, i) in data.runs" :key="r.id" :value="r.id">Run {{ data.runs.length - i }} · {{ titleize(r.trigger) }} · {{ fmtDate(r.createdAt, 'time') }}</option>
                 </select>
               </div>

@@ -84,7 +84,7 @@ function sparkline(points: { date: string; score: number }[], w = 120, h = 36) {
             </div>
             <div>
               <dt class="text-fg-3">Source</dt>
-              <dd class="font-medium flex items-center gap-1.5"><ModeBadge :mode="b.snapshot?.mode" /> {{ b.snapshot?.source?.replace(/_/g, ' ') ?? 'none' }}</dd>
+              <dd class="font-medium flex items-center gap-1.5"><ModeBadge :mode="b.snapshot?.mode" /><template v-if="!b.snapshot">none</template><template v-else-if="b.snapshot.source && b.snapshot.source !== b.snapshot.mode">{{ b.snapshot.source.replace(/_/g, ' ') }}</template></dd>
             </div>
             <div>
               <dt class="text-fg-3">Freeze</dt>

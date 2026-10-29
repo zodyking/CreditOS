@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, inArray } from 'drizzle-orm'
+import type { DataMode } from '#shared/constants'
 import { assertFreezeTransition, type FreezeStatus } from '#shared/state-machines'
 import { getDb, schema } from '../../db'
 import type { FreezeRequest } from '../../db/schema'
@@ -37,7 +38,7 @@ export async function freezeMatrix(userId: string) {
   })
 }
 
-export async function startFreezeRequest(userId: string, agencySlug: string, action: 'freeze' | 'lift_temporary' | 'lift_permanent', method: 'online' | 'phone' | 'mail', opts: { liftStartAt?: Date; liftEndAt?: Date; notes?: string } = {}): Promise<FreezeRequest> {
+export async function startFreezeRequest(userId: string, agencySlug: string, action: 'freeze' | 'lift_temporary' | 'lift_permanent', method: 'online' | 'phone' | 'mail', opts: { liftStartAt?: Date; liftEndAt?: Date; notes?: string; mode?: DataMode } = {}): Promise<FreezeRequest> {
   const db = getDb()
   const agency = await db.query.freezeAgencies.findFirst({ where: eq(schema.freezeAgencies.slug, agencySlug) })
   if (!agency) throw createError({ statusCode: 404, statusMessage: 'Agency not found' })
@@ -55,7 +56,7 @@ export async function startFreezeRequest(userId: string, agencySlug: string, act
   }
   const [req] = await db
     .insert(schema.freezeRequests)
-    .values({ userId, agencyId: agency.id, action, status: 'NOT_STARTED', requestMethod: method, notes: opts.notes ?? null, mode: 'live' })
+    .values({ userId, agencyId: agency.id, action, status: 'NOT_STARTED', requestMethod: method, notes: opts.notes ?? null, mode: opts.mode ?? 'live' })
     .returning()
   await db.insert(schema.freezeEvents).values({ requestId: req!.id, fromStatus: null, toStatus: 'NOT_STARTED', actor: 'user', note: 'Request created' })
   const prepared = await transitionFreeze(userId, req!.id, 'REQUEST_PREPARED', 'system', { note: `Guided ${method} workflow prepared for ${agency.name}. ${agency.supportsApi ? '' : 'No official API: submit through the agency channel, then record the submission.'}` })

@@ -88,7 +88,7 @@ const statusTone: Record<string, string> = { pending: TONE_CLASS.warning, approv
           </div>
 
           <div class="px-5 py-4 grid gap-4 sm:grid-cols-2 text-sm">
-            <div class="rounded-md bg-surface-2 p-3"><p class="eyebrow mb-1">Recipient</p><p class="font-medium">{{ selected.bundle.target }}</p><p v-if="selected.order" class="text-xs text-fg-2">{{ selected.order.recipient.line1 }}<br>{{ selected.order.recipient.city }}, {{ selected.order.recipient.state }} {{ selected.order.recipient.postalCode }}</p></div>
+            <div class="rounded-md bg-surface-2 p-3"><p class="eyebrow mb-1">Recipient</p><template v-if="selected.order"><p class="font-medium">{{ selected.order.recipient.name }}</p><p class="text-xs text-fg-2">{{ selected.order.recipient.line1 }}<br><template v-if="selected.order.recipient.line2">{{ selected.order.recipient.line2 }}<br></template>{{ selected.order.recipient.city }}, {{ selected.order.recipient.state }} {{ selected.order.recipient.postalCode }}</p></template><p v-else class="font-medium">{{ selected.bundle.target }}</p></div>
             <div class="rounded-md bg-surface-2 p-3"><p class="eyebrow mb-1">Provider & cost</p><p class="font-medium">{{ titleize(selected.bundle.provider) }} <span class="text-xs text-fg-3">({{ selected.bundle.providerMode }})</span></p><p class="text-xs text-fg-2">{{ titleize(selected.bundle.mailClass ?? 'first_class') }} · est. {{ money(selected.bundle.costEstimateCents, { cents: true }) }}</p></div>
             <div class="rounded-md bg-surface-2 p-3 sm:col-span-2">
               <p class="eyebrow mb-1">Letter</p>
