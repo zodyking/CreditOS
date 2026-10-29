@@ -115,6 +115,21 @@ describe('council simulator (demo mode)', () => {
     expect(decision.outcome).toBe('collect_evidence')
   })
 
+  it('a split or losing ballot escalates to the user instead of forcing a plan', () => {
+    const d = dossier({ category: 'misreported_balance' })
+    const t = simulateCouncil(d)
+    const gates = evaluateHardGates(d, t)
+    // Flip two supporters to opposition so oppose >= support while every gate still passes.
+    t.ballots.bureau_specialist = { vote: 'oppose', rationale: 'Prefers a furnisher-first sequence.' }
+    t.ballots.furnisher_specialist = { vote: 'oppose', rationale: 'Wants the statement first.' }
+    t.ballots.adversarial_skeptic = { vote: 'oppose', rationale: 'Outcome too uncertain to file now.' }
+    t.chair.outcome = 'proceed'
+    const decision = reconcileDecision(t, gates)
+    expect(decision.outcome).toBe('escalate')
+    expect(decision.tally.oppose).toBeGreaterThanOrEqual(decision.tally.support)
+    expect(decision.gatesRespected).toBe(true)
+  })
+
   it('unknown citations are caught by the fabrication gate', () => {
     const d = dossier({ category: 'misreported_balance' })
     const t = simulateCouncil(d)
