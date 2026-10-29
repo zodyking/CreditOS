@@ -22,6 +22,7 @@ CreditOS is a **financial operations control center**, not a consumer fintech la
 | `logo/creditos-wordmark-light.svg` | Horizontal lockup for light surfaces. |
 | `social/github-social-preview.svg` | 1280×640 repository social card. |
 | `social/readme-banner.svg` | 1200×320 README hero. |
+| `screenshots/*.png` | Product captures (1440×900 desktop and 375×812 mobile, 2× scale) used in the README. Regenerate after visual changes. |
 
 **Concept.** The open "C" is the credit file. The signal line passing through its opening is the monitoring pulse — CreditOS reads what the bureaus report and lets nothing out of the file unnoticed.
 
