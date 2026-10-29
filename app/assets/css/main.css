@@ -198,7 +198,7 @@
     @apply w-full text-sm;
   }
   .table th {
-    @apply text-left eyebrow py-2.5 px-3 border-b border-border font-semibold;
+    @apply text-left text-xs font-semibold uppercase tracking-[0.12em] text-fg-3 py-2.5 px-3 border-b border-border;
   }
   .table td {
     @apply py-2.5 px-3 border-b border-border/70 align-top;

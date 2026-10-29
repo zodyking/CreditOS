@@ -7,6 +7,8 @@ export default withNuxt({
     'vue/html-self-closing': 'off',
     'vue/max-attributes-per-line': 'off',
     'vue/singleline-html-element-content-newline': 'off',
+    'vue/require-default-prop': 'off',
+    'vue/first-attribute-linebreak': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
   },
 }).append({
