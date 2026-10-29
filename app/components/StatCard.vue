@@ -2,10 +2,11 @@
 import { TONE_CLASS, type Tone } from '~/utils/format'
 
 withDefaults(defineProps<{ label: string; value: string | number; hint?: string; icon?: string; tone?: Tone; to?: string }>(), { tone: 'neutral' })
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <component :is="to ? resolveComponent('NuxtLink') : 'div'" :to="to" class="card card-pad flex items-start gap-3 group" :class="to ? 'hover:border-border-strong transition-colors' : ''">
+  <component :is="to ? NuxtLink : 'div'" :to="to" class="card card-pad flex items-start gap-3 group" :class="to ? 'hover:border-border-strong transition-colors' : ''">
     <div v-if="icon" class="size-9 rounded-md grid place-items-center shrink-0" :class="TONE_CLASS[tone]">
       <Icon :name="icon" class="size-[18px]" />
     </div>

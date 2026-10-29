@@ -113,7 +113,7 @@ function sparkline(points: { date: string; score: number }[], w = 120, h = 36) {
 
       <div class="mt-6 grid gap-6 xl:grid-cols-3">
         <!-- Action items -->
-        <section class="card xl:col-span-1">
+        <section class="card xl:col-span-1 min-w-0">
           <div class="px-5 py-4 border-b border-border flex items-center justify-between">
             <h2 class="font-semibold">Needs you</h2>
             <span class="text-xs text-fg-3">{{ actionItems.length }} item{{ actionItems.length === 1 ? '' : 's' }}</span>
@@ -159,7 +159,7 @@ function sparkline(points: { date: string; score: number }[], w = 120, h = 36) {
         </section>
 
         <!-- Recent cases + timeline -->
-        <section class="xl:col-span-2 space-y-6">
+        <section class="xl:col-span-2 space-y-6 min-w-0">
           <div class="card">
             <div class="px-5 py-4 border-b border-border flex items-center justify-between">
               <h2 class="font-semibold">Recent cases</h2>

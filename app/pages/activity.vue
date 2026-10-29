@@ -52,11 +52,11 @@ const expanded = ref<Record<string, boolean>>({})
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="pill !py-0" :class="actorTone[f.actor] ?? TONE_CLASS.neutral">{{ titleize(f.actor) }}</span>
-                  <span class="font-medium" :class="f.source === 'audit' ? 'mono text-xs' : ''">{{ f.source === 'audit' ? f.title : f.title }}</span>
+                  <span class="font-medium break-words min-w-0" :class="f.source === 'audit' ? 'mono text-xs' : ''">{{ f.title }}</span>
                   <NuxtLink v-if="f.caseId" :to="`/cases/${f.caseId}`" class="mono text-[11px] text-accent hover:underline">{{ f.caseCode }}</NuxtLink>
                   <span v-if="f.ip" class="text-[11px] text-fg-3 mono ml-auto">{{ f.ip }}</span>
                 </div>
-                <p v-if="f.detail" class="text-xs text-fg-2 mt-0.5 whitespace-pre-wrap">{{ f.detail }}</p>
+                <p v-if="f.detail" class="text-xs text-fg-2 mt-0.5 whitespace-pre-wrap break-words">{{ f.detail }}</p>
                 <button v-if="f.meta && Object.keys(f.meta).length" class="text-[11px] text-accent hover:underline mt-0.5" @click="expanded[`${f.source}-${f.id}`] = !expanded[`${f.source}-${f.id}`]">{{ expanded[`${f.source}-${f.id}`] ? 'Hide' : 'Show' }} metadata</button>
                 <pre v-if="expanded[`${f.source}-${f.id}`]" class="mt-1 text-[11px] mono bg-surface-2 rounded p-2 overflow-x-auto">{{ JSON.stringify(f.meta, null, 2) }}</pre>
               </div>

@@ -121,6 +121,11 @@
 }
 
 @layer base {
+  /* Grid tracks must be allowed to shrink below their content's intrinsic width,
+     otherwise wide tables/hashes push the page wider than small viewports. */
+  .grid > * {
+    min-width: 0;
+  }
   html {
     font-family: var(--font-sans);
     font-size: 16px;
