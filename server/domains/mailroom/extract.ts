@@ -27,7 +27,7 @@ export async function extractText(buffer: Buffer, mimeType: string): Promise<Ext
 }
 
 const CASE_CODE_RE = /\bCR-\d{4}-\d{4}\b/g
-const ACCT_RE = /(?:ending in|acct(?:ount)?\s*(?:#|no\.?|number)?\s*[:-]?\s*)[x*•]*(\d{4})\b/gi
+const ACCT_RE = /(?:ending in|acct(?:ount)?\s*(?:#|no\.?|number)?\s*[:-]?)\s*[x*•]*(\d{4})\b/gi
 const DATE_RE = /\b(?:\d{1,2}\/\d{1,2}\/\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4})\b/g
 
 export function classifyResponse(text: string): ResponseCategory | null {

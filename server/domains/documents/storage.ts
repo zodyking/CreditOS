@@ -141,5 +141,11 @@ export async function deleteDocument(userId: string, id: string): Promise<void> 
 }
 
 export function sanitizeFilename(name: string): string {
-  return name.replace(/[^\w.\- ()]/g, '_').slice(0, 140) || 'document'
+  return (
+    name
+      .replace(/[^\w.\- ()]/g, '_')
+      .replace(/\.{2,}/g, '.')
+      .replace(/^[. ]+/, '')
+      .slice(0, 140) || 'document'
+  )
 }
