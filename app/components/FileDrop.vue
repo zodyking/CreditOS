@@ -30,7 +30,7 @@ function onDrop(e: DragEvent) {
   <div>
     <button
       type="button"
-      class="w-full rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors focus-visible:outline-2"
+      class="w-full rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors focus-visible:outline-2 bg-surface-2"
       :class="[over ? 'border-ring bg-accent/5' : 'border-border-strong hover:border-ring/60', disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer']"
       :disabled="disabled"
       @click="input?.click()"
@@ -38,8 +38,8 @@ function onDrop(e: DragEvent) {
       @dragleave="over = false"
       @drop.prevent="onDrop"
     >
-      <Icon name="lucide:upload-cloud" class="size-7 mx-auto text-fg-3" />
-      <p class="mt-2 text-sm font-medium">{{ file ? file.name : label }}</p>
+      <span class="icon-tile size-12 rounded-full bg-accent-soft text-accent-strong mx-auto"><Icon name="lucide:upload-cloud" class="size-6" /></span>
+      <p class="mt-3 text-sm font-semibold">{{ file ? file.name : label }}</p>
       <p class="mt-1 text-xs text-fg-3">{{ file ? `${(file.size / 1024).toFixed(0)} KB · click to replace` : hint }}</p>
     </button>
     <input ref="input" type="file" class="sr-only" :accept="accept" @change="pick(($event.target as HTMLInputElement).files?.[0])">

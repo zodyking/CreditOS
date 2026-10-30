@@ -271,8 +271,8 @@ const eventIcon: Record<string, string> = { status: 'lucide:git-commit-horizonta
         <!-- CENTER: council / timeline / letter -->
         <div class="xl:col-span-6 space-y-4">
           <div class="card">
-            <div class="px-4 pt-3 border-b border-border flex flex-wrap items-center gap-1" role="tablist">
-              <button v-for="t in [{ k: 'council', l: 'Council transcript', i: 'lucide:users-round' }, { k: 'timeline', l: 'Timeline', i: 'lucide:history' }, { k: 'letter', l: 'Letter', i: 'lucide:file-text' }]" :key="t.k" role="tab" :aria-selected="centerTab === t.k" class="px-3 py-2 text-sm font-medium border-b-2 -mb-px flex items-center gap-1.5 transition-colors" :class="centerTab === t.k ? 'border-accent text-fg' : 'border-transparent text-fg-3 hover:text-fg'" @click="centerTab = t.k as typeof centerTab"><Icon :name="t.i" class="size-4" /> {{ t.l }}</button>
+            <div class="px-3 sm:px-4 pt-1 border-b border-border flex flex-wrap items-center gap-1" role="tablist">
+              <button v-for="t in [{ k: 'council', l: 'Council transcript', i: 'lucide:users-round' }, { k: 'timeline', l: 'Timeline', i: 'lucide:history' }, { k: 'letter', l: 'Letter', i: 'lucide:file-text' }]" :key="t.k" role="tab" :aria-selected="centerTab === t.k" class="tab-underline" @click="centerTab = t.k as typeof centerTab"><Icon :name="t.i" class="size-4" /> {{ t.l }}</button>
               <div v-if="centerTab === 'council' && data.runs.length > 1" class="ml-auto pb-2">
                 <select v-model="runSelectValue" class="input !py-1 !h-auto text-xs w-auto" aria-label="Select council run">
                   <option v-for="(r, i) in data.runs" :key="r.id" :value="r.id">Run {{ data.runs.length - i }} · {{ titleize(r.trigger) }} · {{ fmtDate(r.createdAt, 'time') }}</option>

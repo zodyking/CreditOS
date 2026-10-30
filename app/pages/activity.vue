@@ -24,6 +24,16 @@ const byDay = computed(() => {
 })
 const actorTone: Record<string, string> = { user: TONE_CLASS.info, system: TONE_CLASS.neutral, agent: TONE_CLASS.demo, council: TONE_CLASS.demo, provider: TONE_CLASS.live, webhook: TONE_CLASS.live, scheduler: TONE_CLASS.neutral }
 const expanded = ref<Record<string, boolean>>({})
+
+const VERB: Record<string, string> = { login: 'Signed in', logout: 'Signed out', create: 'Created', update: 'Updated', delete: 'Deleted', download: 'Downloaded', upload: 'Uploaded', grant: 'Granted', revoke: 'Revoked', transition: 'Changed status of', approve: 'Approved', reject: 'Rejected', run: 'Ran', verify: 'Verified', store: 'Stored', send: 'Sent', dismiss: 'Dismissed', review: 'Reviewed', import: 'Imported', detect: 'Ran detection on', check: 'Checked' }
+const NOUN: Record<string, string> = { auth: 'session', consent: 'consent', document: 'document', freeze: 'freeze record', case: 'case', approval: 'approval', settings: 'settings', council: 'council run', report: 'report', letter: 'letter', mail: 'mail', job: 'job', alert: 'alert', webhook: 'webhook', model: 'model' }
+function humanize(title: string, source: string) {
+  if (source !== 'audit' || !/^[a-z_]+\.[a-z_]+$/.test(title)) return title
+  const [noun = '', verb = ''] = title.split('.')
+  const v = VERB[verb] ?? titleize(verb)
+  if (noun === 'auth') return v
+  return `${v} ${NOUN[noun] ?? titleize(noun).toLowerCase()}`
+}
 </script>
 
 <template>
@@ -39,20 +49,26 @@ const expanded = ref<Record<string, boolean>>({})
       <span class="text-xs text-fg-3 px-2">{{ feed.length }} entries</span>
     </div>
 
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-fg-2 mb-4 px-1">
+      <span class="inline-flex items-center gap-2"><span class="size-2 rounded-full bg-verdigris-500" /> Factual event (recorded from an action or a document)</span>
+      <span class="inline-flex items-center gap-2"><span class="size-2 rounded-full bg-orchid-500" /> Interpretation (produced by the council or detection)</span>
+    </div>
+
     <div v-if="pending && !data" class="skeleton h-64" />
     <EmptyState v-else-if="!feed.length" icon="lucide:scroll-text" title="No activity" description="Actions you take will be recorded here." />
     <div v-else class="space-y-6">
       <section v-for="[day, items] in byDay" :key="day">
-        <h2 class="eyebrow mb-2 sticky top-14 bg-bg/90 backdrop-blur py-1 z-10">{{ fmtDate(items[0]!.at, 'long') }}</h2>
+        <h2 class="eyebrow mb-2 sticky top-[72px] bg-bg/90 backdrop-blur py-1.5 z-10">{{ fmtDate(items[0]!.at, 'long') }}</h2>
         <ol class="card divide-y divide-border">
-          <li v-for="f in items" :key="`${f.source}-${f.id}`" class="px-4 py-2.5 text-sm">
+          <li v-for="f in items" :key="`${f.source}-${f.id}`" class="px-4 sm:px-5 py-3 text-sm">
             <div class="flex items-start gap-3">
               <span class="mt-1.5 size-2 rounded-full shrink-0" :class="f.factual ? 'bg-verdigris-500' : 'bg-orchid-500'" :title="f.factual ? 'Factual event' : 'Interpretation / AI output'" />
               <span class="text-xs text-fg-3 num w-16 shrink-0 mt-0.5">{{ fmtDate(f.at, 'time').split(', ')[1] ?? fmtDate(f.at, 'time') }}</span>
               <div class="min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="pill !py-0" :class="actorTone[f.actor] ?? TONE_CLASS.neutral">{{ titleize(f.actor) }}</span>
-                  <span class="font-medium break-words min-w-0" :class="f.source === 'audit' ? 'mono text-xs' : ''">{{ f.title }}</span>
+                  <span class="font-medium break-words min-w-0">{{ humanize(f.title, f.source) }}</span>
+                  <span v-if="f.source === 'audit' && humanize(f.title, f.source) !== f.title" class="mono text-[11px] text-fg-3">{{ f.title }}</span>
                   <NuxtLink v-if="f.caseId" :to="`/cases/${f.caseId}`" class="mono text-[11px] text-accent hover:underline">{{ f.caseCode }}</NuxtLink>
                   <span v-if="f.ip" class="text-[11px] text-fg-3 mono ml-auto">{{ f.ip }}</span>
                 </div>

@@ -42,12 +42,12 @@ export interface TranscriptRun {
 const props = defineProps<{ run: TranscriptRun }>()
 
 const ROLE_BG: Record<string, string> = {
-  azure: 'bg-azure-500/15 text-azure-600 dark:text-azure-300',
-  verdigris: 'bg-verdigris-500/15 text-verdigris-700 dark:text-verdigris-300',
-  aurum: 'bg-aurum-500/15 text-aurum-600 dark:text-aurum-300',
-  fern: 'bg-fern-500/15 text-fern-600 dark:text-fern-300',
-  garnet: 'bg-garnet-500/15 text-garnet-600 dark:text-garnet-300',
-  orchid: 'bg-orchid-500/15 text-orchid-600 dark:text-orchid-300',
+  azure: 'bg-azure-100 text-azure-700 dark:bg-azure-600/20 dark:text-azure-300',
+  verdigris: 'bg-verdigris-100 text-verdigris-800 dark:bg-verdigris-600/20 dark:text-verdigris-300',
+  aurum: 'bg-aurum-100 text-aurum-700 dark:bg-aurum-600/20 dark:text-aurum-300',
+  fern: 'bg-fern-100 text-fern-700 dark:bg-fern-600/20 dark:text-fern-300',
+  garnet: 'bg-garnet-100 text-garnet-700 dark:bg-garnet-600/20 dark:text-garnet-300',
+  orchid: 'bg-orchid-100 text-orchid-700 dark:bg-orchid-600/20 dark:text-orchid-300',
 }
 function roleMeta(role: string) {
   return AGENT_ROLE_META[role as AgentRole] ?? { label: titleize(role), short: role.slice(0, 2).toUpperCase(), color: 'azure', description: '' }
@@ -99,7 +99,7 @@ const outcomeTone: Record<string, string> = { proceed: TONE_CLASS.success, colle
       <span v-if="run.usage?.estimatedCostUsd" class="num">{{ money(run.usage.estimatedCostUsd) }} · {{ run.usage.promptTokens + run.usage.completionTokens }} tok</span>
       <span class="ml-auto">{{ fmtDate(run.completedAt ?? run.createdAt, 'time') }}</span>
     </div>
-    <p v-if="run.error" class="text-sm text-garnet-500 bg-garnet-500/10 rounded-md px-3 py-2">{{ run.error }}</p>
+    <p v-if="run.error" class="note note-danger">{{ run.error }}</p>
 
     <!-- Roundtable -->
     <div class="flex flex-wrap gap-2">

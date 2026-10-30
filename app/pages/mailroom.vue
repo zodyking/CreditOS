@@ -132,24 +132,28 @@ const catTone: Record<string, string> = { corrected: TONE_CLASS.success, deleted
       </template>
     </PageHeader>
 
-    <div class="border-b border-border mb-6 flex flex-wrap gap-1" role="tablist">
+    <div class="border-b border-border mb-6 flex flex-wrap gap-1 overflow-x-auto" role="tablist">
       <button v-for="t in [
         { k: 'inbox', l: 'Inbox', n: unreadCount, i: 'lucide:inbox' },
         { k: 'unassigned', l: 'Unassigned', n: unassigned.length, i: 'lucide:mail-question' },
         { k: 'outbound', l: 'Outbound', n: (outbound?.orders ?? []).filter(o => !['DELIVERY_CONFIRMED', 'CANCELLED', 'FAILED', 'RETURNED'].includes(o.status)).length, i: 'lucide:send' },
         { k: 'upload', l: 'Upload', n: 0, i: 'lucide:upload' },
         { k: 'providers', l: 'Providers', n: 0, i: 'lucide:plug' },
-      ]" :key="t.k" role="tab" :aria-selected="tab === t.k" class="px-3 py-2 text-sm font-medium border-b-2 -mb-px flex items-center gap-1.5" :class="tab === t.k ? 'border-accent text-fg' : 'border-transparent text-fg-3 hover:text-fg'" @click="tab = t.k as Tab">
+      ]" :key="t.k" role="tab" :aria-selected="tab === t.k" class="tab-underline" @click="tab = t.k as Tab">
         <Icon :name="t.i" class="size-4" /> {{ t.l }} <span v-if="t.n" class="pill !py-0" :class="t.k === 'unassigned' ? TONE_CLASS.warning : TONE_CLASS.info">{{ t.n }}</span>
       </button>
     </div>
 
     <!-- Inbox / Unassigned -->
-    <div v-if="tab === 'inbox' || tab === 'unassigned'" class="grid gap-6 lg:grid-cols-5">
+    <div v-if="tab === 'inbox' || tab === 'unassigned'" class="grid gap-6 lg:grid-cols-5 items-start">
       <div class="card lg:col-span-2">
+        <div class="card-head !py-3">
+          <h2>{{ tab === 'inbox' ? 'Inbox' : 'Unassigned letters' }}</h2>
+          <span class="text-xs text-fg-3">{{ (tab === 'inbox' ? inboxItems : unassigned).length }} letter{{ (tab === 'inbox' ? inboxItems : unassigned).length === 1 ? '' : 's' }}</span>
+        </div>
         <ul class="divide-y divide-border max-h-[70vh] overflow-y-auto scrollbar-thin">
           <li v-for="m in tab === 'inbox' ? inboxItems : unassigned" :key="m.id">
-            <button type="button" class="w-full text-left px-4 py-3 hover:bg-surface-2" :class="openId === m.id ? 'bg-surface-2' : ''" @click="openId = m.id">
+            <button type="button" class="w-full text-left px-4 py-3.5 hover:bg-surface-2 border-l-2 transition-colors" :class="openId === m.id ? 'bg-accent-soft/60 border-accent' : 'border-transparent'" @click="openId = m.id">
               <div class="flex items-center gap-2">
                 <span v-if="m.unread" class="size-2 rounded-full bg-accent shrink-0" aria-label="Unread" />
                 <p class="font-medium text-sm truncate" :class="m.unread ? '' : 'text-fg-2'">{{ m.senderName ?? m.extraction?.senderGuess ?? 'Unknown sender' }}</p>

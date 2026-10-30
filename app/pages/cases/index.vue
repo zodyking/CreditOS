@@ -120,19 +120,30 @@ async function createCase() {
         { key: 'done', label: 'Closed', hint: 'Resolved, closed or cancelled', items: groups.done, tone: 'neutral' },
       ]" :key="group.key">
         <section v-if="group.items.length" class="card mb-6">
-          <div class="px-5 py-3.5 border-b border-border flex items-center gap-3">
-            <span class="pill" :class="TONE_CLASS[group.tone as keyof typeof TONE_CLASS]">{{ group.items.length }}</span>
-            <h2 class="font-semibold">{{ group.label }}</h2>
-            <span class="text-xs text-fg-3 hidden sm:inline">{{ group.hint }}</span>
+          <div class="card-head !items-center">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="pill" :class="TONE_CLASS[group.tone as keyof typeof TONE_CLASS]">{{ group.items.length }}</span>
+              <h2>{{ group.label }}</h2>
+              <span class="text-xs text-fg-3 hidden sm:inline">{{ group.hint }}</span>
+            </div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="table min-w-[800px]">
+
+          <!-- Desktop table -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="table table-fixed w-full min-w-[880px]">
+              <colgroup>
+                <col class="w-[35%]">
+                <col class="w-[14%]">
+                <col class="w-[13%]">
+                <col class="w-[10%]">
+                <col class="w-[17%]">
+                <col class="w-[11%]">
+              </colgroup>
               <thead>
                 <tr>
                   <th>Case</th>
                   <th>Status</th>
                   <th>Bureaus</th>
-                  <th>Priority</th>
                   <th>Confidence</th>
                   <th>Next action</th>
                   <th class="text-right">Updated</th>
@@ -141,17 +152,21 @@ async function createCase() {
               <tbody>
                 <tr v-for="c in group.items" :key="c.id" class="hover:bg-surface-2 cursor-pointer" @click="navigateTo(`/cases/${c.id}`)">
                   <td>
-                    <div class="flex items-center gap-2">
-                      <NuxtLink :to="`/cases/${c.id}`" class="font-medium hover:underline">{{ c.title }}</NuxtLink>
-                      <ModeBadge :mode="c.mode" />
-                    </div>
-                    <p class="text-xs text-fg-3 mt-0.5"><span class="mono">{{ c.code }}</span> · {{ ISSUE_CATEGORY_LABEL[c.category] ?? titleize(c.category) }}<span v-if="c.creditorName"> · {{ c.creditorName }}</span></p>
+                    <NuxtLink :to="`/cases/${c.id}`" class="font-semibold text-fg hover:text-accent-strong line-clamp-2 leading-snug">{{ c.title }}</NuxtLink>
+                    <p class="text-xs text-fg-3 mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                      <span class="mono">{{ c.code }}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{{ ISSUE_CATEGORY_LABEL[c.category] ?? titleize(c.category) }}</span>
+                      <template v-if="c.creditorName"><span aria-hidden="true">·</span><span class="truncate">{{ c.creditorName }}</span></template>
+                      <span aria-hidden="true">·</span>
+                      <span class="whitespace-nowrap">{{ priorityLabel(c.priority) }}</span>
+                      <ModeBadge :mode="c.mode" size="xs" />
+                    </p>
                   </td>
                   <td><StatusPill kind="case" :status="c.status" /></td>
                   <td><BureauChips :bureaus="c.bureaus" /></td>
-                  <td class="text-xs whitespace-nowrap">{{ priorityLabel(c.priority) }}</td>
                   <td class="num text-sm">{{ pct(c.confidence) }}</td>
-                  <td class="text-xs max-w-64">
+                  <td class="text-xs">
                     <p class="truncate" :title="c.nextAction ?? ''">{{ c.nextAction ?? '—' }}</p>
                     <p v-if="c.nextActionDueAt" class="text-fg-3">due {{ fmtDate(c.nextActionDueAt, 'short') }}</p>
                   </td>
@@ -160,6 +175,25 @@ async function createCase() {
               </tbody>
             </table>
           </div>
+
+          <!-- Stacked list for small screens -->
+          <ul class="md:hidden divide-y divide-border">
+            <li v-for="c in group.items" :key="c.id">
+              <NuxtLink :to="`/cases/${c.id}`" class="block px-5 py-4 hover:bg-surface-2">
+                <div class="flex items-start justify-between gap-3">
+                  <p class="font-semibold text-fg leading-snug">{{ c.title }}</p>
+                  <StatusPill kind="case" :status="c.status" class="shrink-0" />
+                </div>
+                <p class="text-xs text-fg-3 mt-1.5"><span class="mono">{{ c.code }}</span> · {{ ISSUE_CATEGORY_LABEL[c.category] ?? titleize(c.category) }} · {{ priorityLabel(c.priority) }} · {{ pct(c.confidence) }}</p>
+                <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                  <BureauChips :bureaus="c.bureaus" />
+                  <ModeBadge :mode="c.mode" size="xs" />
+                  <span class="ml-auto text-xs text-fg-3">{{ relTime(c.updatedAt) }}</span>
+                </div>
+                <p v-if="c.nextAction" class="mt-2.5 text-sm text-fg-2 flex items-start gap-1.5"><Icon name="lucide:corner-down-right" class="size-3.5 mt-0.5 text-fg-3 shrink-0" /><span>{{ c.nextAction }}<span v-if="c.nextActionDueAt" class="text-fg-3"> · due {{ fmtDate(c.nextActionDueAt, 'short') }}</span></span></p>
+              </NuxtLink>
+            </li>
+          </ul>
         </section>
       </template>
       <p v-if="data.cases.length" class="text-xs text-fg-3">{{ data.cases.length }} case{{ data.cases.length === 1 ? '' : 's' }} · {{ openCount }} open</p>

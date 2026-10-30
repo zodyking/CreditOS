@@ -57,12 +57,23 @@ export type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'demo
 
 export const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-surface-3 text-fg-2',
-  info: 'bg-azure-100 text-azure-600 dark:bg-azure-600/20 dark:text-azure-300',
-  success: 'bg-fern-100 text-fern-600 dark:bg-fern-600/20 dark:text-fern-300',
-  warning: 'bg-aurum-100 text-aurum-600 dark:bg-aurum-600/20 dark:text-aurum-300',
-  danger: 'bg-garnet-100 text-garnet-600 dark:bg-garnet-600/20 dark:text-garnet-300',
-  demo: 'bg-orchid-100 text-orchid-600 dark:bg-orchid-600/25 dark:text-orchid-300',
-  live: 'bg-verdigris-100 text-verdigris-700 dark:bg-verdigris-600/20 dark:text-verdigris-300',
+  info: 'bg-azure-100 text-azure-700 dark:bg-azure-600/20 dark:text-azure-300',
+  success: 'bg-fern-100 text-fern-700 dark:bg-fern-600/20 dark:text-fern-300',
+  warning: 'bg-aurum-100 text-aurum-700 dark:bg-aurum-600/20 dark:text-aurum-300',
+  danger: 'bg-garnet-100 text-garnet-700 dark:bg-garnet-600/20 dark:text-garnet-300',
+  demo: 'bg-orchid-100 text-orchid-700 dark:bg-orchid-600/25 dark:text-orchid-300',
+  live: 'bg-verdigris-100 text-verdigris-800 dark:bg-verdigris-600/20 dark:text-verdigris-300',
+}
+
+/** Solid variants for icon tiles and emphasis. */
+export const TONE_SOLID: Record<Tone, string> = {
+  neutral: 'bg-ink-600 text-white',
+  info: 'bg-azure-600 text-white',
+  success: 'bg-fern-600 text-white',
+  warning: 'bg-aurum-500 text-white',
+  danger: 'bg-garnet-600 text-white',
+  demo: 'bg-orchid-600 text-white',
+  live: 'bg-verdigris-600 text-white',
 }
 
 export function caseStatusLabel(s: string): string {

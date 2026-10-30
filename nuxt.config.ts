@@ -24,7 +24,7 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         { name: 'description', content: 'CreditOS — AI-powered personal credit intelligence and dispute operations.' },
-        { name: 'theme-color', content: '#0B1220' },
+        { name: 'theme-color', content: '#F5F7FB' },
         { name: 'robots', content: 'noindex' },
       ],
       link: [

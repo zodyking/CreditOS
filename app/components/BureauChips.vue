@@ -3,9 +3,9 @@ import { bureauName } from '~/utils/format'
 
 defineProps<{ bureaus: string[] | null | undefined; size?: 'xs' | 'sm' }>()
 const color: Record<string, string> = {
-  equifax: 'bg-garnet-500/15 text-garnet-600 dark:text-garnet-300',
-  experian: 'bg-azure-500/15 text-azure-600 dark:text-azure-300',
-  transunion: 'bg-aurum-500/15 text-aurum-600 dark:text-aurum-300',
+  equifax: 'bg-garnet-100 text-garnet-700 dark:bg-garnet-600/20 dark:text-garnet-300',
+  experian: 'bg-azure-100 text-azure-700 dark:bg-azure-600/20 dark:text-azure-300',
+  transunion: 'bg-aurum-100 text-aurum-700 dark:bg-aurum-600/20 dark:text-aurum-300',
 }
 </script>
 

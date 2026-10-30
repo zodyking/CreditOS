@@ -71,15 +71,15 @@ async function remove(id: string, name: string) {
     <div v-if="pending && !data" class="skeleton h-64" />
     <div v-else class="card">
       <div class="overflow-x-auto">
-        <table class="table min-w-[760px]">
+        <table class="table min-w-[960px]">
           <thead><tr><th>File</th><th>Kind</th><th>Case</th><th>Size</th><th>SHA-256</th><th>Added</th><th /></tr></thead>
           <tbody>
             <tr v-for="d in docs" :key="d.id">
               <td><div class="flex items-center gap-2"><Icon :name="kindIcon[d.kind] ?? 'lucide:file'" class="size-4 text-fg-3 shrink-0" /><div class="min-w-0"><p class="font-medium truncate max-w-72">{{ d.title ?? d.filename }}</p><p class="text-xs text-fg-3 truncate max-w-72">{{ d.filename }} · {{ d.mimeType }}<span v-if="d.pageCount"> · {{ d.pageCount }} pp</span></p></div></div></td>
-              <td><div class="flex items-center gap-1.5"><span class="pill bg-surface-3 text-fg-2">{{ titleize(d.kind) }}</span><span v-if="d.sensitivity === 'sensitive'" class="pill" :class="TONE_CLASS.warning" title="Contains personal data">sensitive</span><ModeBadge :mode="d.mode" /></div></td>
-              <td><NuxtLink v-if="d.case" :to="`/cases/${d.case.id}`" class="mono text-xs hover:underline">{{ d.case.code }}</NuxtLink><span v-else class="text-xs text-fg-3">—</span></td>
-              <td class="text-xs num">{{ bytes(d.sizeBytes) }}</td>
-              <td class="mono text-[11px] text-fg-3" :title="d.sha256">{{ d.sha256.slice(0, 16) }}…</td>
+              <td class="whitespace-nowrap"><div class="flex items-center gap-1.5"><span class="pill bg-surface-3 text-fg-2">{{ titleize(d.kind) }}</span><span v-if="d.sensitivity === 'sensitive'" class="pill" :class="TONE_CLASS.warning" title="Contains personal data">sensitive</span><ModeBadge :mode="d.mode" /></div></td>
+              <td class="whitespace-nowrap"><NuxtLink v-if="d.case" :to="`/cases/${d.case.id}`" class="mono text-xs text-accent-strong hover:underline">{{ d.case.code }}</NuxtLink><span v-else class="text-xs text-fg-3">—</span></td>
+              <td class="text-xs num whitespace-nowrap">{{ bytes(d.sizeBytes) }}</td>
+              <td class="mono text-[11px] text-fg-3 whitespace-nowrap" :title="d.sha256">{{ d.sha256.slice(0, 12) }}…</td>
               <td class="text-xs text-fg-3 whitespace-nowrap">{{ fmtDate(d.createdAt) }}</td>
               <td class="text-right whitespace-nowrap"><a :href="`/api/documents/${d.id}/download?inline=1`" target="_blank" rel="noopener" class="btn btn-ghost btn-sm" aria-label="Open"><Icon name="lucide:eye" class="size-3.5" /></a><a :href="`/api/documents/${d.id}/download`" class="btn btn-ghost btn-sm" aria-label="Download"><Icon name="lucide:download" class="size-3.5" /></a><button class="btn btn-ghost btn-sm text-garnet-500" aria-label="Delete" :disabled="busy === d.id" @click="remove(d.id, d.filename)"><Icon name="lucide:trash-2" class="size-3.5" /></button></td>
             </tr>
