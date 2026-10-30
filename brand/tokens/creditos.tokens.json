@@ -1,97 +1,437 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "CreditOS",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "color": {
     "ink": {
-      "950": { "$value": "#070B14", "$type": "color", "$description": "Page background (dark)" },
-      "900": { "$value": "#0B1220", "$type": "color", "$description": "Brand ink / primary dark surface" },
-      "800": { "$value": "#111B2E", "$type": "color", "$description": "Card surface (dark)" },
-      "700": { "$value": "#182540", "$type": "color", "$description": "Elevated surface (dark)" },
-      "600": { "$value": "#243454", "$type": "color", "$description": "Borders (dark)" },
-      "500": { "$value": "#3A4C6E", "$type": "color" },
-      "400": { "$value": "#5B6B8A", "$type": "color", "$description": "Muted text (dark)" },
-      "300": { "$value": "#7E8BA3", "$type": "color" },
-      "200": { "$value": "#AEB9CF", "$type": "color", "$description": "Secondary text (dark)" },
-      "100": { "$value": "#E6EAF2", "$type": "color", "$description": "Borders (light)" },
-      "50": { "$value": "#F6F8FB", "$type": "color", "$description": "Page background (light)" }
+      "50": {
+        "$value": "#F4F6FA",
+        "$type": "color",
+        "$description": "Page background (light) base"
+      },
+      "100": {
+        "$value": "#E4E9F1",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#B7C2D6",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#8A99B6",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#637497",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#3F537C",
+        "$type": "color"
+      },
+      "600": {
+        "$value": "#2A3D63",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#1C2D4D",
+        "$type": "color"
+      },
+      "800": {
+        "$value": "#14213A",
+        "$type": "color"
+      },
+      "850": {
+        "$value": "#0F1A30",
+        "$type": "color",
+        "$description": "Primary text on light surfaces; rail gradient end"
+      },
+      "900": {
+        "$value": "#0B1220",
+        "$type": "color",
+        "$description": "Brand ink. Navigation rail, logo tile, dark page background"
+      },
+      "950": {
+        "$value": "#070B14",
+        "$type": "color"
+      }
     },
     "verdigris": {
-      "700": { "$value": "#0E7A71", "$type": "color" },
-      "600": { "$value": "#12978C", "$type": "color" },
-      "500": { "$value": "#19B3A6", "$type": "color", "$description": "Primary brand accent" },
-      "400": { "$value": "#35CCBF", "$type": "color" },
-      "300": { "$value": "#7FE2D8", "$type": "color" },
-      "100": { "$value": "#D8F7F3", "$type": "color" }
+      "50": {
+        "$value": "#EFFCFA",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#DFF8F5",
+        "$type": "color"
+      },
+      "200": {
+        "$value": "#B9EFE9",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#7FE2D8",
+        "$type": "color"
+      },
+      "400": {
+        "$value": "#35CCBF",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#19B3A6",
+        "$type": "color",
+        "$description": "Brand accent on dark surfaces, live / verified"
+      },
+      "600": {
+        "$value": "#0F8A80",
+        "$type": "color",
+        "$description": "Primary action on light surfaces (AA on white)"
+      },
+      "700": {
+        "$value": "#0B6F68",
+        "$type": "color",
+        "$description": "Primary action hover / strong accent"
+      },
+      "800": {
+        "$value": "#085A55",
+        "$type": "color"
+      }
     },
     "aurum": {
-      "600": { "$value": "#C9841C", "$type": "color" },
-      "500": { "$value": "#E9A23B", "$type": "color", "$description": "Attention / awaiting approval" },
-      "300": { "$value": "#F5C77A", "$type": "color" },
-      "100": { "$value": "#FCEFD6", "$type": "color" }
+      "50": {
+        "$value": "#FFF8EA",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#FDF0D8",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#F5C77A",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#E9A23B",
+        "$type": "color",
+        "$description": "Attention / awaiting approval"
+      },
+      "600": {
+        "$value": "#C9841C",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#9A5F0C",
+        "$type": "color"
+      }
     },
     "garnet": {
-      "600": { "$value": "#C53A3F", "$type": "color" },
-      "500": { "$value": "#E5484D", "$type": "color", "$description": "Danger / blocked / failed" },
-      "300": { "$value": "#F39A9D", "$type": "color" },
-      "100": { "$value": "#FDE2E3", "$type": "color" }
+      "50": {
+        "$value": "#FFF1F1",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#FDE4E5",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#F39A9D",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#E5484D",
+        "$type": "color",
+        "$description": "Danger / blocked / failed"
+      },
+      "600": {
+        "$value": "#C53A3F",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#A12D31",
+        "$type": "color"
+      }
     },
     "fern": {
-      "600": { "$value": "#2E9D5B", "$type": "color" },
-      "500": { "$value": "#3DBE6E", "$type": "color", "$description": "Success / confirmed" },
-      "300": { "$value": "#8EDDAB", "$type": "color" },
-      "100": { "$value": "#DDF5E6", "$type": "color" }
+      "50": {
+        "$value": "#EFFBF3",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#DEF6E7",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#8EDDAB",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#3DBE6E",
+        "$type": "color",
+        "$description": "Success / confirmed"
+      },
+      "600": {
+        "$value": "#2E9D5B",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#227A46",
+        "$type": "color"
+      }
     },
     "azure": {
-      "600": { "$value": "#2F6FE0", "$type": "color" },
-      "500": { "$value": "#4C8DFF", "$type": "color", "$description": "Informational" },
-      "300": { "$value": "#A6C4FF", "$type": "color" },
-      "100": { "$value": "#E0EBFF", "$type": "color" }
+      "50": {
+        "$value": "#F1F6FF",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#E3EDFF",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#A6C4FF",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#4C8DFF",
+        "$type": "color",
+        "$description": "Informational"
+      },
+      "600": {
+        "$value": "#2F6FE0",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#2457B8",
+        "$type": "color"
+      }
     },
     "orchid": {
-      "600": { "$value": "#7E51E8", "$type": "color" },
-      "500": { "$value": "#9B6DFF", "$type": "color", "$description": "Demo / Sandbox / AI-generated content marker" },
-      "300": { "$value": "#C9B3FF", "$type": "color" },
-      "100": { "$value": "#EDE6FF", "$type": "color" }
+      "50": {
+        "$value": "#F7F4FF",
+        "$type": "color"
+      },
+      "100": {
+        "$value": "#EFE9FF",
+        "$type": "color"
+      },
+      "300": {
+        "$value": "#C9B3FF",
+        "$type": "color"
+      },
+      "500": {
+        "$value": "#9B6DFF",
+        "$type": "color",
+        "$description": "Demo / Sandbox / AI-generated content marker"
+      },
+      "600": {
+        "$value": "#7E51E8",
+        "$type": "color"
+      },
+      "700": {
+        "$value": "#6540C4",
+        "$type": "color"
+      }
+    }
+  },
+  "semantic": {
+    "light": {
+      "bg": {
+        "$value": "#F5F7FB",
+        "$type": "color",
+        "$description": "Page background"
+      },
+      "surface": {
+        "$value": "#FFFFFF",
+        "$type": "color",
+        "$description": "Cards, header, inputs"
+      },
+      "surface-2": {
+        "$value": "#F8FAFC",
+        "$type": "color",
+        "$description": "Wells, table heads"
+      },
+      "surface-3": {
+        "$value": "#EEF2F7",
+        "$type": "color",
+        "$description": "Segmented controls, neutral pills"
+      },
+      "border": {
+        "$value": "#E6EBF2",
+        "$type": "color"
+      },
+      "border-strong": {
+        "$value": "#CFD8E5",
+        "$type": "color"
+      },
+      "text": {
+        "$value": "#0F1A30",
+        "$type": "color"
+      },
+      "text-2": {
+        "$value": "#4B5A74",
+        "$type": "color"
+      },
+      "text-3": {
+        "$value": "#7C8AA5",
+        "$type": "color"
+      },
+      "accent": {
+        "$value": "{color.verdigris.600}",
+        "$type": "color"
+      },
+      "accent-strong": {
+        "$value": "{color.verdigris.700}",
+        "$type": "color"
+      },
+      "accent-soft": {
+        "$value": "{color.verdigris.50}",
+        "$type": "color"
+      },
+      "rail": {
+        "$value": "{color.ink.900}",
+        "$type": "color",
+        "$description": "Navigation rail (always navy)"
+      },
+      "rail-text": {
+        "$value": "#E9EEF7",
+        "$type": "color"
+      }
     }
   },
   "font": {
     "family": {
-      "sans": { "$value": "'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif", "$type": "fontFamily" },
-      "mono": { "$value": "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace", "$type": "fontFamily" }
+      "sans": {
+        "$value": "'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+        "$type": "fontFamily",
+        "$description": "UI text"
+      },
+      "display": {
+        "$value": "'Manrope Variable', Manrope, 'Inter Variable', Inter, system-ui, sans-serif",
+        "$type": "fontFamily",
+        "$description": "Headings, wordmark, large figures"
+      },
+      "mono": {
+        "$value": "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
+        "$type": "fontFamily",
+        "$description": "Codes, hashes, tabular figures"
+      }
     },
     "size": {
-      "xs": { "$value": "0.75rem", "$type": "dimension" },
-      "sm": { "$value": "0.8125rem", "$type": "dimension" },
-      "base": { "$value": "0.9375rem", "$type": "dimension" },
-      "lg": { "$value": "1.0625rem", "$type": "dimension" },
-      "xl": { "$value": "1.25rem", "$type": "dimension" },
-      "2xl": { "$value": "1.5rem", "$type": "dimension" },
-      "3xl": { "$value": "1.875rem", "$type": "dimension" },
-      "4xl": { "$value": "2.375rem", "$type": "dimension" }
+      "xs": {
+        "$value": "0.75rem",
+        "$type": "dimension"
+      },
+      "sm": {
+        "$value": "0.875rem",
+        "$type": "dimension"
+      },
+      "base": {
+        "$value": "0.9375rem",
+        "$type": "dimension"
+      },
+      "lg": {
+        "$value": "1.0625rem",
+        "$type": "dimension"
+      },
+      "xl": {
+        "$value": "1.25rem",
+        "$type": "dimension"
+      },
+      "2xl": {
+        "$value": "1.5rem",
+        "$type": "dimension"
+      },
+      "3xl": {
+        "$value": "1.875rem",
+        "$type": "dimension"
+      },
+      "4xl": {
+        "$value": "2.375rem",
+        "$type": "dimension"
+      },
+      "5xl": {
+        "$value": "3rem",
+        "$type": "dimension"
+      }
     }
   },
   "space": {
-    "1": { "$value": "0.25rem", "$type": "dimension" },
-    "2": { "$value": "0.5rem", "$type": "dimension" },
-    "3": { "$value": "0.75rem", "$type": "dimension" },
-    "4": { "$value": "1rem", "$type": "dimension" },
-    "5": { "$value": "1.25rem", "$type": "dimension" },
-    "6": { "$value": "1.5rem", "$type": "dimension" },
-    "8": { "$value": "2rem", "$type": "dimension" },
-    "10": { "$value": "2.5rem", "$type": "dimension" },
-    "12": { "$value": "3rem", "$type": "dimension" }
+    "1": {
+      "$value": "0.25rem",
+      "$type": "dimension"
+    },
+    "2": {
+      "$value": "0.5rem",
+      "$type": "dimension"
+    },
+    "3": {
+      "$value": "0.75rem",
+      "$type": "dimension"
+    },
+    "4": {
+      "$value": "1rem",
+      "$type": "dimension"
+    },
+    "5": {
+      "$value": "1.25rem",
+      "$type": "dimension"
+    },
+    "6": {
+      "$value": "1.5rem",
+      "$type": "dimension"
+    },
+    "8": {
+      "$value": "2rem",
+      "$type": "dimension"
+    },
+    "10": {
+      "$value": "2.5rem",
+      "$type": "dimension"
+    },
+    "12": {
+      "$value": "3rem",
+      "$type": "dimension"
+    }
   },
   "radius": {
-    "sm": { "$value": "6px", "$type": "dimension" },
-    "md": { "$value": "10px", "$type": "dimension" },
-    "lg": { "$value": "14px", "$type": "dimension" },
-    "xl": { "$value": "20px", "$type": "dimension" },
-    "pill": { "$value": "999px", "$type": "dimension" }
+    "xs": {
+      "$value": "6px",
+      "$type": "dimension"
+    },
+    "sm": {
+      "$value": "8px",
+      "$type": "dimension"
+    },
+    "md": {
+      "$value": "12px",
+      "$type": "dimension"
+    },
+    "lg": {
+      "$value": "16px",
+      "$type": "dimension"
+    },
+    "xl": {
+      "$value": "24px",
+      "$type": "dimension"
+    }
   },
-  "elevation": {
-    "1": { "$value": "0 1px 2px rgba(7, 11, 20, 0.08), 0 1px 1px rgba(7, 11, 20, 0.04)", "$type": "shadow" },
-    "2": { "$value": "0 4px 12px rgba(7, 11, 20, 0.12), 0 1px 3px rgba(7, 11, 20, 0.08)", "$type": "shadow" },
-    "3": { "$value": "0 16px 40px rgba(7, 11, 20, 0.22), 0 2px 6px rgba(7, 11, 20, 0.10)", "$type": "shadow" }
+  "shadow": {
+    "1": {
+      "$value": "0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.05)",
+      "$type": "shadow"
+    },
+    "2": {
+      "$value": "0 6px 16px -4px rgba(16,24,40,.10), 0 2px 4px rgba(16,24,40,.04)",
+      "$type": "shadow"
+    },
+    "3": {
+      "$value": "0 24px 48px -12px rgba(16,24,40,.22), 0 4px 10px rgba(16,24,40,.06)",
+      "$type": "shadow"
+    },
+    "brand": {
+      "$value": "0 8px 20px -6px rgba(15,138,128,.45)",
+      "$type": "shadow",
+      "$description": "Primary button lift"
+    }
   }
 }

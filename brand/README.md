@@ -4,7 +4,9 @@
 
 # CreditOS Brand Kit
 
-CreditOS is a **financial operations control center**, not a consumer fintech landing page. The brand communicates precision, custody, and calm authority: your credit file is evidence, and CreditOS is the operations desk that keeps it honest.
+CreditOS is a **credit operations suite**: the calm, well-lit desk from which a person runs their own credit file like a professional would. The brand communicates precision, custody and friendliness at once — your credit file is evidence, every claim is cited, and nothing leaves without your approval.
+
+**Direction.** Light-first and friendly, in the register of a Fortune 500 customer-facing product: white cards on a cool off-white page, one deep navy rail that anchors the brand, a single verdigris action colour, and generous, highly legible type. Dark mode is a first-class mirror of the same tokens.
 
 **Tagline:** _Credit intelligence, under your control._
 **Short form:** _See it. Prove it. Fix it._
@@ -36,15 +38,19 @@ The palette is deliberately restrained: one brand accent, one neutral ramp, and 
 
 | Token | Hex | Meaning |
 | --- | --- | --- |
-| **Ink 900** | `#0B1220` | Brand ink. Dark surfaces, logo tile, headlines on light. |
-| **Verdigris 500** | `#19B3A6` | Primary action, live/verified state, brand accent. |
+| **Ink 900** | `#0B1220` | Brand ink. Navigation rail, logo tile, dark-mode page. |
+| **Ink 850** | `#0F1A30` | Primary text on light surfaces. |
+| **Verdigris 600** | `#0F8A80` | Primary action on light surfaces (AA on white). Hover: Verdigris 700 `#0B6F68`. |
+| **Verdigris 500** | `#19B3A6` | Brand accent on dark surfaces, live/verified state, logo arc. |
 | **Aurum 500** | `#E9A23B` | Awaiting approval, pending, needs attention. |
 | **Garnet 500** | `#E5484D` | Blocked, failed, rejected, danger. |
 | **Fern 500** | `#3DBE6E` | Confirmed, resolved, supported. |
 | **Azure 500** | `#4C8DFF` | Informational, estimated dates, neutral events. |
 | **Orchid 500** | `#9B6DFF` | **Demo / Sandbox / AI-generated** marker. Never used for anything else. |
 
-Full ramps live in `tokens/creditos.tokens.json` (W3C design-token format) and are implemented as CSS variables / Tailwind theme tokens in `app/assets/css/main.css`.
+Full ramps (50–950) and the semantic layer (`bg`, `surface`, `surface-2/3`, `border`, `text`, `text-2/3`, `accent`, `accent-strong`, `accent-soft`, `rail`) live in `tokens/creditos.tokens.json` (W3C design-token format) and are implemented as CSS variables / Tailwind theme tokens in `app/assets/css/main.css`.
+
+**Status tints.** Status pills and callouts always pair a `100` background with a `700` foreground of the same hue (`bg-aurum-100 text-aurum-700`), which keeps every pill ≥ 4.5:1 on white. On dark surfaces the same pills use a 20 % tint of the `600` step with the `300` foreground.
 
 **Semantic contract.** Orchid is reserved for things that are *not real*: demo data, sandbox providers, simulated council runs, hypothetical response scenarios. Verdigris is reserved for *live* and *verified*. The two never swap. This is how the UI keeps its promise to never present a mock as live.
 
@@ -52,19 +58,22 @@ Full ramps live in `tokens/creditos.tokens.json` (W3C design-token format) and a
 
 | Role | Face | Notes |
 | --- | --- | --- |
-| UI & headings | **Inter Variable** | Tight tracking on display sizes (−0.02em to −0.035em). Weights 500/600/700. |
-| Figures, IDs, dates, hashes | **JetBrains Mono Variable** | Tabular numerals for balances, case codes (`CR-2026-0042`), timestamps. |
+| Headings, wordmark, large figures | **Manrope Variable** | Geometric, friendly, −0.02em tracking. Weights 700/800. Page titles 30–38 px, card titles 16 px. |
+| UI text | **Inter Variable** | 15 px body, 14 px controls, 13 px table rows. Weights 400/500/600. |
+| Codes, IDs, dates, hashes | **JetBrains Mono Variable** | Tabular numerals for balances, case codes (`CR-2026-0042`), hashes, timestamps. |
 
-Type scale (rem): 0.75 · 0.8125 · 0.9375 · 1.0625 · 1.25 · 1.5 · 1.875 · 2.375.
+Type scale (rem): 0.75 · 0.875 · 0.9375 · 1.0625 · 1.25 · 1.5 · 1.875 · 2.375 · 3.
 
-Both faces are self-hosted via Fontsource — no third-party font CDN requests leave a self-hosted installation.
+All three faces are self-hosted via Fontsource — no third-party font CDN requests leave a self-hosted installation.
 
 ## 4. Surfaces & shape
 
-- Radii: 6 / 10 / 14 / 20 px. Cards use 14, inputs 10, pills 999.
-- Dark theme is the default; light theme is first-class. Both are tokenized.
-- Borders are low-contrast hairlines (`Ink 600` on dark, `Ink 100` on light). Depth comes from layered surfaces, not heavy shadows.
-- Dense-but-readable: 15 px body text, 13 px table rows, generous 24 px section rhythm.
+- Radii: 6 / 8 / 12 / 16 / 24 px. Cards use 16, buttons and inputs 12, pills 999.
+- Light theme is the default; dark theme is a first-class mirror. Both are tokenized; the navigation rail stays navy in both.
+- Borders are hairlines (`#E6EBF2` light, `rgba(255,255,255,.08)` on the rail). Depth comes from one soft card shadow and a single brand-tinted lift on primary buttons.
+- Every page opens with the same header grammar: eyebrow → title → one-paragraph plain-language description → actions. Cards use `card-head` (title + sub-copy) so each block explains itself.
+- Callouts (`note-info / brand / warning / danger / demo`) are pastel with a dark foreground, used to explain what will happen before an action, never as decoration.
+- Readable, not dense: 15 px body, 24–32 px section rhythm, 44 px tap targets on every button and input.
 
 ## 5. Voice
 
@@ -76,8 +85,9 @@ Both faces are self-hosted via Fontsource — no third-party font CDN requests l
 ## 6. Usage in the app
 
 ```vue
-<BrandLogo />            <!-- mark + wordmark -->
-<BrandLogo mark-only />  <!-- tile only -->
+<AppLogo />                              <!-- mark + wordmark, inherits text colour -->
+<AppLogo size="lg" theme="dark" tagline />  <!-- rail / auth hero lockup with tagline -->
+<AppLogo size="sm" :wordmark="false" />  <!-- tile only -->
 ```
 
 Favicon: `public/favicon.svg` (identical to `logo/creditos-mark.svg`).

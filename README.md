@@ -52,7 +52,7 @@
 ## Stack
 
 - **Nuxt 4.6** (Vue 3.5, Nitro `node-server` preset, TypeScript strict) — single process serving UI, API, SSE and the background job worker.
-- **Tailwind CSS 4** with a token-driven design system (`brand/tokens/creditos.tokens.json` → `app/assets/css/main.css`), dark and light themes, Inter + JetBrains Mono self-hosted via Fontsource.
+- **Tailwind CSS 4** with a token-driven, light-first design system (`brand/tokens/creditos.tokens.json` → `app/assets/css/main.css`), dark theme as a first-class mirror, Manrope + Inter + JetBrains Mono self-hosted via Fontsource.
 - **PostgreSQL 14+** via Drizzle ORM. The database is always external; migrations live in `server/db/migrations` and run on boot (`AUTO_MIGRATE=true`) or via `pnpm db:migrate`.
 - **OpenRouter** for live model calls with a searchable model catalogue, per-role model selection, structured outputs, provider routing preferences and a per-run cost cap.
 - **pdf-lib / unpdf** for letter rendering and text extraction, **file-type** for magic-byte validation.
