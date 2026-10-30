@@ -9,7 +9,7 @@ Every requirement from the master prompt and the full feature specification, mar
 
 Where a line says "Implemented" and "Simulated" together, the local path is real and the external path is sandboxed.
 
-Last updated for `v1.0.0`.
+Last updated for `v1.1.0`.
 
 ---
 
@@ -57,7 +57,8 @@ Last updated for `v1.0.0`.
 | Durable job scheduling with retries | **Implemented** | Postgres queue (`SKIP LOCKED`), exponential backoff, dead-letter, idempotency keys, retry from Settings. |
 | Authentication and secure foundations | **Implemented** | See `SECURITY.md`. Single owner; no MFA. |
 | Database migrations, seed script, env example, Docker Compose, Windows start commands, automated tests | **Implemented** | `server/db/migrations`, `pnpm db:seed`, `.env.example`, `docker-compose.yml`, README Windows section, vitest (64 tests). |
-| Dark/light themes | **Implemented** | Persisted theme toggle. |
+| Dark/light themes | **Implemented** | Light by default (v1.1.0), dark as a first-class mirror of the same tokens; persisted toggle honours system preference until the user chooses. |
+| Professional, legible customer-facing UI | **Implemented** (v1.1.0) | Token-driven design system (`brand/tokens`), Manrope/Inter/JetBrains Mono, navy navigation rail, explanatory page headers and callouts, 44 px targets, 375 px overflow sweep across all routes. |
 
 ## Master prompt — required test scenarios
 
