@@ -1,7 +1,12 @@
-# Dokploy "Docker Compose" deployment (or plain `docker compose up -d`).
-# PostgreSQL is treated as EXTERNAL: point DATABASE_URL at your managed
-# instance or at a Dokploy-provisioned Postgres service. A commented-out
-# local Postgres service is included for quick evaluation only.
+# Dokploy Compose deployment, or plain `docker compose up -d`.
+# PostgreSQL is EXTERNAL: point DATABASE_URL at a managed instance or at a
+# Dokploy Postgres service. A commented-out local Postgres service is included
+# for evaluation only.
+#
+# Host port: CREDITOS_HOST_PORT (default 3010) → container 3000.
+# Dokploy's own panel already listens on host port 3000, so this file does not
+# publish 3000. In Dokploy, public traffic goes through the Domains tab to
+# container port 3000; leave the ports mapping in place.
 services:
   creditos:
     build:
@@ -10,7 +15,7 @@ services:
     image: creditos:latest
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${CREDITOS_HOST_PORT:-3010}:3000"
     environment:
       NODE_ENV: production
       APP_MODE: ${APP_MODE:-demo}
