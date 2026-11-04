@@ -10,10 +10,10 @@
   },
   "packageManager": "pnpm@10.33.4",
   "scripts": {
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --port 8176",
     "build": "nuxt build",
-    "preview": "nuxt preview",
-    "start": "node .output/server/index.mjs",
+    "preview": "nuxt preview --port 8176",
+    "start": "node scripts/start.mjs",
     "postinstall": "nuxt prepare",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --tsconfig tsconfig.scripts.json scripts/migrate.ts",

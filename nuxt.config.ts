@@ -55,6 +55,8 @@ export default defineNuxtConfig({
       appVersion: pkg.version,
     },
   },
+  // 8176 stays clear of Dokploy's panel on 3000 and other common dev ports.
+  devServer: { port: 8176 },
   nitro: {
     preset: 'node-server',
   },

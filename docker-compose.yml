@@ -8,9 +8,8 @@
 # volume. Change it later in Settings → Database. Compose creates that volume
 # on the first deploy.
 #
-# Host port CREDITOS_HOST_PORT (default 3010) publishes container port 3000.
-# Dokploy's panel already listens on host port 3000. Point the domain at
-# container port 3000.
+# The app listens on 8176, a high port that is not already used by Dokploy.
+# Point the domain at container port 8176.
 services:
   creditos:
     build:
@@ -19,9 +18,11 @@ services:
     image: creditos:latest
     restart: unless-stopped
     ports:
-      - "${CREDITOS_HOST_PORT:-3010}:3000"
+      - "8176:8176"
     environment:
       NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "8176"
       APP_MODE: ${APP_MODE:-demo}
       NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD:?Set NUXT_SESSION_PASSWORD in the Dokploy Environment tab}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?Set APP_ENCRYPTION_KEY in the Dokploy Environment tab}
@@ -36,7 +37,7 @@ services:
     volumes:
       - creditos-data:/data
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8176/api/health"]
       interval: 30s
       timeout: 5s
       retries: 5

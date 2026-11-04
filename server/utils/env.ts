@@ -35,7 +35,7 @@ export const env = {
     return pick('OPENROUTER_DEFAULT_MODEL', 'NUXT_OPENROUTER_DEFAULT_MODEL') ?? 'openai/gpt-4o-mini'
   },
   get openrouterSiteUrl(): string {
-    return pick('OPENROUTER_SITE_URL') ?? 'http://localhost:3000'
+    return pick('OPENROUTER_SITE_URL') ?? 'http://localhost:8176'
   },
   get dataDir(): string {
     return pick('DATA_DIR', 'NUXT_DATA_DIR') ?? './data'

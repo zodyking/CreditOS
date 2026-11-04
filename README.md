@@ -80,7 +80,7 @@ cp .env.example .env
 pnpm dev
 ```
 
-Open <http://localhost:3000>. If `DATABASE_URL` is empty, the first page asks for a PostgreSQL connection string, connects, and saves it. In demo mode (`APP_MODE=demo`, `DEMO_SEED=true`) the database is migrated and seeded on that first connection and you can sign in with:
+Open <http://localhost:8176>. If `DATABASE_URL` is empty, the first page asks for a PostgreSQL connection string, connects, and saves it. In demo mode (`APP_MODE=demo`, `DEMO_SEED=true`) the database is migrated and seeded on that first connection and you can sign in with:
 
 ```
 demo@creditos.local / creditos-demo
@@ -97,7 +97,7 @@ corepack enable
 pnpm install
 Copy-Item .env.example .env
 notepad .env          # set DATABASE_URL, NUXT_SESSION_PASSWORD, APP_ENCRYPTION_KEY
-pnpm dev              # development server on http://localhost:3000
+pnpm dev              # development server on http://localhost:8176
 ```
 
 Production on Windows:
@@ -105,7 +105,7 @@ Production on Windows:
 ```powershell
 pnpm build
 $env:NODE_ENV = "production"
-node .output\server\index.mjs
+pnpm start              # http://localhost:8176
 ```
 
 Run these from the project folder (any folder you own). Nothing depends on launching from `C:\Windows\System32`.
@@ -121,7 +121,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"   # 
 
 The Environment tab only needs two values. The database connection string is entered in the browser on first launch and saved encrypted on the volume Compose creates (`creditos-data`, mounted at `/data`). You do not attach a volume yourself, and you do not put `DATABASE_URL` in the environment.
 
-Dokploy's panel already listens on host port 3000. The app listens on container port 3000 and is published on host port 3010 so the two do not clash. The domain targets container port **3000**.
+The app listens on port **8176** (host and container). That stays clear of Dokploy's panel on port 3000. The domain targets container port **8176**.
 
 ### 1. Create the database
 
@@ -144,7 +144,7 @@ In the same Dokploy project, **Create Service → Database → PostgreSQL** and 
    | `APP_MODE` | no | `demo` (default) · `test` · `live`. |
    | `DEMO_SEED` | no | `true` loads the synthetic workspace the first time a database connects and is empty. |
 
-3. **Domains → Add domain**. Service `creditos`, container port **3000**, HTTPS with Let's Encrypt. Point DNS at the server before this step.
+3. **Domains → Add domain**. Service `creditos`, container port **8176**, HTTPS with Let's Encrypt. Point DNS at the server before this step.
 4. **Deploy.** Compose creates the `creditos-data` volume during this deploy.
 
 ### 3. Paste the connection string
@@ -163,8 +163,7 @@ To leave the demo, set `APP_MODE=live` and `DEMO_SEED=false` in the Environment 
 ```bash
 # .env must define NUXT_SESSION_PASSWORD and APP_ENCRYPTION_KEY
 docker compose up -d --build
-# http://localhost:3010   then paste a Postgres URL on the first page
-# CREDITOS_HOST_PORT=3000 publishes on port 3000 instead
+# http://localhost:8176   then paste a Postgres URL on the first page
 ```
 
 ## Operating modes
@@ -182,7 +181,7 @@ Every snapshot, council run, mail order and inbound item carries its own `mode` 
 | Command | Purpose |
 | --- | --- |
 | `pnpm dev` | Development server with HMR |
-| `pnpm build` / `pnpm start` | Production build / run `.output/server/index.mjs` |
+| `pnpm build` / `pnpm start` | Production build / serve on port 8176 |
 | `pnpm db:migrate` | Apply SQL migrations (also automatic on boot when `AUTO_MIGRATE=true`) |
 | `pnpm db:seed` | Seed the synthetic tri-bureau demo dataset |
 | `pnpm db:reset` | Drop and recreate the schema (destructive) |
