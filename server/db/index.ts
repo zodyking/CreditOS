@@ -5,6 +5,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
 import * as schema from './schema'
 import { env } from '../utils/env'
+import { resolveDatabaseUrl } from '../utils/database-store'
 
 export type Db = PostgresJsDatabase<typeof schema>
 
@@ -13,7 +14,9 @@ let db: Db | null = null
 
 export function getDb(): Db {
   if (db) return db
-  client = postgres(env.databaseUrl, {
+  const resolved = resolveDatabaseUrl()
+  if (!resolved) throw new Error('PostgreSQL is not connected yet.')
+  client = postgres(resolved.url, {
     max: 10,
     idle_timeout: 30,
     connect_timeout: 10,

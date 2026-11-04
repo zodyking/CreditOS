@@ -46,7 +46,7 @@ async function submit() {
       <div>
         <p class="font-semibold">The server could not reach its database</p>
         <p class="mt-1 opacity-90">{{ status.bootError }}</p>
-        <p class="text-xs mt-2 opacity-80">Set <code class="mono">DATABASE_URL</code> to an external PostgreSQL connection string and restart the container.</p>
+        <p class="text-xs mt-2 opacity-80">Update the connection string on the setup page. It is saved encrypted on this server.</p>
       </div>
     </div>
 

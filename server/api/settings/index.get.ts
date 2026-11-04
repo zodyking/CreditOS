@@ -9,6 +9,7 @@ import { describeOutboundProvider, listOutboundProviders } from '../../domains/c
 import { activeInboundProvider, inboundProviders } from '../../domains/mailroom/providers'
 import { listRulePacks, resolveLegalBasis } from '../../domains/rules/engine'
 import { getBootState } from '../../plugins/boot'
+import { databasePublicStatus } from '../../utils/database-store'
 
 export default defineEventHandler(async event => {
   const user = await requireUser(event)
@@ -32,6 +33,7 @@ export default defineEventHandler(async event => {
       lastLoginAt: user.lastLoginAt,
     },
     app: { mode: env.appMode, version: useRuntimeConfig().public.appVersion, boot: getBootState(), encryptionConfigured: !!env.encryptionKey, dataDir: env.dataDir },
+    database: databasePublicStatus(),
     ai: {
       ...aiConfig,
       keyConfigured: !!key.key,

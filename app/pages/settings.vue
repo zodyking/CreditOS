@@ -10,8 +10,9 @@ const { clear: clearSession } = useUserSession()
 const { data, refresh, pending } = await useFetch('/api/settings', { key: 'settings' })
 const { data: jobsData, refresh: refreshJobs } = await useFetch('/api/settings/jobs', { key: 'settings-jobs', lazy: true, server: false })
 
-type Section = 'ai' | 'consents' | 'profile' | 'providers' | 'jobs' | 'rules' | 'system'
+type Section = 'database' | 'ai' | 'consents' | 'profile' | 'providers' | 'jobs' | 'rules' | 'system'
 const SECTIONS: { k: Section; l: string; i: string }[] = [
+  { k: 'database', l: 'Database', i: 'lucide:database' },
   { k: 'ai', l: 'AI council (OpenRouter)', i: 'lucide:brain-circuit' },
   { k: 'consents', l: 'Consents & automation', i: 'lucide:shield-check' },
   { k: 'profile', l: 'Profile & address', i: 'lucide:user-round' },
@@ -20,7 +21,7 @@ const SECTIONS: { k: Section; l: string; i: string }[] = [
   { k: 'rules', l: 'Rule packs', i: 'lucide:scale' },
   { k: 'system', l: 'System', i: 'lucide:server' },
 ]
-const section = ref<Section>((SECTIONS.some(s => s.k === route.query.s) ? String(route.query.s) : 'ai') as Section)
+const section = ref<Section>((SECTIONS.some(s => s.k === route.query.s) ? String(route.query.s) : 'database') as Section)
 watch(section, s => router.replace({ query: { s } }))
 
 const api = useApi()
@@ -128,6 +129,28 @@ function changePassword() {
     pw.confirm = ''
   }, 'Password changed')
 }
+const dbString = ref('')
+const showDb = ref(false)
+async function saveDatabase() {
+  busy.value = 'database'
+  try {
+    const result = await api<{ ok: boolean; signedOut: boolean; database: { host: string; database: string; user: string } }>('/api/settings/database', { method: 'POST', body: { connectionString: dbString.value } })
+    dbString.value = ''
+    if (result.signedOut) {
+      toast.success('Database saved', 'This account is not in the new database. Sign in again.')
+      await clearSession()
+      await navigateTo('/login')
+      return
+    }
+    toast.success('Database connected', `${result.database.user}@${result.database.host}/${result.database.database}`)
+    await refresh()
+  } catch (e) {
+    toast.error('Database not changed', errorMessage(e))
+  } finally {
+    busy.value = null
+  }
+}
+
 async function logout() {
   await api('/api/auth/logout', { method: 'POST' })
   await clearSession()
@@ -146,7 +169,7 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
 
 <template>
   <div>
-    <PageHeader title="Settings" eyebrow="Configuration" description="Model selection, consents, your mailing identity, integrations and the job queue. Secrets are encrypted at rest and never echoed back." />
+    <PageHeader title="Settings" eyebrow="Configuration" description="Database, model selection, consents, your mailing identity, integrations and the job queue. Secrets are encrypted at rest and never echoed back." />
 
     <div v-if="pending && !data" class="skeleton h-64" />
     <div v-else-if="data" class="grid gap-6 lg:grid-cols-4">
@@ -159,8 +182,41 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
       </nav>
 
       <div class="lg:col-span-3 space-y-6">
+        <template v-if="section === 'database'">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>PostgreSQL</h2>
+                <p class="sub">The connection string is encrypted with the app encryption key and stored on this server. It is not kept in the environment.</p>
+              </div>
+            </div>
+            <div class="px-5 sm:px-6 py-5 space-y-5">
+              <dl v-if="data.database.connection" class="grid gap-3 sm:grid-cols-3 text-sm">
+                <div class="rounded-md bg-surface-2 p-3"><dt class="text-xs text-fg-3">Host</dt><dd class="font-medium mt-1 break-all">{{ data.database.connection.host }}</dd></div>
+                <div class="rounded-md bg-surface-2 p-3"><dt class="text-xs text-fg-3">Database</dt><dd class="font-medium mt-1 break-all">{{ data.database.connection.database }}</dd></div>
+                <div class="rounded-md bg-surface-2 p-3"><dt class="text-xs text-fg-3">User</dt><dd class="font-medium mt-1 break-all">{{ data.database.connection.user || '—' }}</dd></div>
+              </dl>
+              <p v-else class="text-sm text-fg-2">No connection is saved yet.</p>
+              <form class="space-y-3" @submit.prevent="saveDatabase">
+                <label for="db-url" class="label">New connection string</label>
+                <div class="relative">
+                  <input id="db-url" v-model="dbString" :type="showDb ? 'text' : 'password'" class="input pr-12 font-mono text-[13px]" autocomplete="off" spellcheck="false" placeholder="postgresql://user:password@host:5432/creditos">
+                  <button type="button" class="absolute right-1.5 top-1.5 btn btn-ghost btn-xs !px-2" :aria-label="showDb ? 'Hide connection string' : 'Show connection string'" @click="showDb = !showDb">
+                    <Icon :name="showDb ? 'lucide:eye-off' : 'lucide:eye'" class="size-4" />
+                  </button>
+                </div>
+                <p class="hint">Saving switches the app to this database immediately and runs migrations. If your account is not in that database, you will be signed out.</p>
+                <button type="submit" class="btn btn-primary" :disabled="busy === 'database' || dbString.trim().length < 12">
+                  <Icon v-if="busy === 'database'" name="lucide:loader-2" class="size-4 animate-spin" />
+                  Test and save
+                </button>
+              </form>
+            </div>
+          </section>
+        </template>
+
         <!-- AI -->
-        <template v-if="section === 'ai'">
+        <template v-else-if="section === 'ai'">
           <section class="card">
             <div class="px-5 py-4 border-b border-border flex flex-wrap items-center gap-2">
               <h2 class="font-semibold">Live council status</h2>
