@@ -1,12 +1,15 @@
-# Dokploy Compose deployment, or plain `docker compose up -d`.
-# PostgreSQL is EXTERNAL: point DATABASE_URL at a managed instance or at a
-# Dokploy Postgres service. A commented-out local Postgres service is included
-# for evaluation only.
+# Dokploy Compose service, or plain `docker compose up -d`.
 #
-# Host port: CREDITOS_HOST_PORT (default 3010) → container 3000.
-# Dokploy's own panel already listens on host port 3000, so this file does not
-# publish 3000. In Dokploy, public traffic goes through the Domains tab to
-# container port 3000; leave the ports mapping in place.
+# Everything the stack needs is entered in Dokploy's Environment tab.
+# The first deploy creates the named volumes below; nothing is mounted by hand.
+#
+#   POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB   database (created here)
+#   NUXT_SESSION_PASSWORD                             session cookie
+#   APP_ENCRYPTION_KEY                                encrypted provider secrets
+#
+# Host port CREDITOS_HOST_PORT (default 3010) publishes container port 3000.
+# Dokploy's panel already listens on host port 3000. In Dokploy, leave this
+# mapping as it is and point the domain at container port 3000.
 services:
   creditos:
     build:
@@ -19,9 +22,16 @@ services:
     environment:
       NODE_ENV: production
       APP_MODE: ${APP_MODE:-demo}
-      DATABASE_URL: ${DATABASE_URL}
-      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD}
-      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY}
+      # Empty unless the Environment tab sets one. The entrypoint then builds
+      # postgresql://POSTGRES_USER:POSTGRES_PASSWORD@POSTGRES_HOST:5432/POSTGRES_DB
+      DATABASE_URL: ${DATABASE_URL:-}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-creditos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the Dokploy Environment tab}
+      POSTGRES_DB: ${POSTGRES_DB:-creditos}
+      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD:?Set NUXT_SESSION_PASSWORD in the Dokploy Environment tab}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?Set APP_ENCRYPTION_KEY in the Dokploy Environment tab}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_DEFAULT_MODEL: ${OPENROUTER_DEFAULT_MODEL:-openai/gpt-4o-mini}
       MAIL_OUTBOUND_PROVIDER: ${MAIL_OUTBOUND_PROVIDER:-sandbox}
@@ -32,29 +42,35 @@ services:
       DATA_DIR: /data
     volumes:
       - creditos-data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 30s
       timeout: 5s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 40s
 
-  # ── Optional local Postgres for evaluation only ────────────────────────────
-  # postgres:
-  #   image: postgres:16-alpine
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_USER: creditos
-  #     POSTGRES_PASSWORD: creditos
-  #     POSTGRES_DB: creditos
-  #   volumes:
-  #     - creditos-pg:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U creditos"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-creditos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the Dokploy Environment tab}
+      POSTGRES_DB: ${POSTGRES_DB:-creditos}
+    volumes:
+      - creditos-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
+# Created automatically on the first deploy and kept across redeploys.
+# creditos-data  → uploads and rendered PDFs (/data)
+# creditos-pg    → the Postgres data directory
 volumes:
   creditos-data:
-  # creditos-pg:
+  creditos-pg:

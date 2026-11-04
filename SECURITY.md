@@ -76,8 +76,8 @@ Open a private security advisory on the GitHub repository (Security → Advisori
 - [ ] `APP_MODE` set deliberately (`test` first, then `live`); `DEMO_SEED=false`.
 - [ ] Strong, unique `NUXT_SESSION_PASSWORD` (≥ 48 random bytes) and `APP_ENCRYPTION_KEY` (32 random bytes) stored in Dokploy secrets, never in the repository. Rotating `APP_ENCRYPTION_KEY` requires re-entering stored provider keys.
 - [ ] `MAIL_WEBHOOK_SECRET` set to the provider's signing secret; webhook URL configured at the provider.
-- [ ] PostgreSQL reachable only from the app network, with its own credentials, TLS (`sslmode=require`) where the host supports it, and automated backups tested by a restore.
-- [ ] Persistent volume mounted at `/data` with backups; disk encryption enabled on the host.
+- [ ] PostgreSQL reachable only from the app network. The compose file does not publish its port. Set `POSTGRES_PASSWORD` in the Dokploy Environment tab, and test a restore of the `creditos-pg` volume.
+- [ ] Volumes `creditos-data` (`/data`) and `creditos-pg` exist after the first deploy (Compose creates them). Back them up; enable disk encryption on the host.
 - [ ] HTTPS enforced at the reverse proxy; HSTS enabled; HTTP → HTTPS redirect.
 - [ ] Reverse-proxy rate limiting on `/api/auth/login` and `/api/webhooks/*`.
 - [ ] Network-level access control (VPN/zero-trust/proxy auth) in front of the app, since there is no MFA.

@@ -59,7 +59,7 @@ Screenshots are the current light-theme product, captured from a freshly seeded 
 
 - **Nuxt 4.6** (Vue 3.5, Nitro `node-server` preset, TypeScript strict) — single process serving UI, API, SSE and the background job worker.
 - **Tailwind CSS 4** with a token-driven, light-first design system (`brand/tokens/creditos.tokens.json` → `app/assets/css/main.css`), dark theme as a first-class mirror, Manrope + Inter + JetBrains Mono self-hosted via Fontsource.
-- **PostgreSQL 14+** via Drizzle ORM. The database is always external; migrations live in `server/db/migrations` and run on boot (`AUTO_MIGRATE=true`) or via `pnpm db:migrate`.
+- **PostgreSQL 16** via Drizzle ORM. The Dokploy compose file starts it and stores it on a volume Compose creates. Local `pnpm dev` can point `DATABASE_URL` at any Postgres 14+. Migrations live in `server/db/migrations` and run on boot (`AUTO_MIGRATE=true`) or via `pnpm db:migrate`.
 - **OpenRouter** for live model calls with a searchable model catalogue, per-role model selection, structured outputs, provider routing preferences and a per-run cost cap.
 - **pdf-lib / unpdf** for letter rendering and text extraction, **file-type** for magic-byte validation.
 - **vitest** for unit and scenario tests, **ESLint** (`@nuxt/eslint`) and `vue-tsc` for static checks.
@@ -118,112 +118,66 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"   # 
 
 ## Publish with Dokploy
 
-CreditOS is one container: the UI, the API, server-sent events and the job worker. PostgreSQL is always a separate database. The image is the repo [`Dockerfile`](./Dockerfile) (Node 22 Alpine, non-root user, health check on `GET /api/health`). [`docker-compose.yml`](./docker-compose.yml) is the file Dokploy should build.
+Use a **Compose** service. [`docker-compose.yml`](./docker-compose.yml) starts CreditOS and PostgreSQL together. You type the database name, user and password in Dokploy's **Environment** tab; you do not create a database service and you do not attach a volume. The first deploy creates both volumes and keeps them across later deploys:
 
-Dokploy's panel already listens on **host port 3000**. CreditOS listens on **container port 3000** and the compose file publishes that as **host port 3010** (`CREDITOS_HOST_PORT`) so a deploy does not take the panel's port. Public HTTPS goes through Dokploy's Domains tab to container port **3000**, not 3010.
+| Volume | What it holds |
+| --- | --- |
+| `creditos-pg` | The Postgres data directory |
+| `creditos-data` | Uploads and rendered PDFs (`/data`) |
 
-### 1. Prepare the server
+Dokploy's panel already listens on host port 3000. The app listens on container port 3000, which the compose file publishes on host port 3010 so the two do not clash. The domain you add below targets container port **3000**.
 
-1. Install Dokploy on the VPS ([installation](https://docs.dokploy.com/docs/core/installation)). Leave ports 80 and 443 open for Traefik. Do not put another process on host port 3000.
-2. At your DNS provider, create an A record (for example `creditos.example.com`) pointing at the server **before** you request a certificate. If the record is added after the domain, Let's Encrypt will not issue and you will have to recreate the domain.
+### 1. Connect the repository
 
-### 2. Connect GitHub
+1. Install Dokploy ([installation](https://docs.dokploy.com/docs/core/installation)). Leave ports 80 and 443 open.
+2. **Git → GitHub → Create GitHub App**, then **Install** and grant this repository.
+3. Create an A record for the hostname you want (for example `creditos.example.com`) pointing at the server before you request a certificate.
 
-1. In Dokploy open **Git** and choose **GitHub**.
-2. **Create GitHub App**, give it a unique name, then **Install**.
-3. Grant the app this repository (`zodyking/CreditOS`, or your fork).
+### 2. Create the Compose service
 
-Pushes to the branch you select in the service redeploy automatically. Pushes to other branches do not.
-
-### 3. Create the project and Postgres
-
-1. **Projects → Create project**.
-2. **Create Service → Database → PostgreSQL**. Set a database name, user and password, then deploy the database.
-3. Copy the **internal** connection URL from that database's connection panel. The host is the Dokploy service name on the internal Docker network. Do not use `localhost`, `127.0.0.1`, or the public IP — the app container cannot reach those.
-
-### 4. Publish the app (Compose)
-
-1. In the same project, **Create Service → Compose**.
+1. **Projects → Create project → Create Service → Compose**.
 2. Source: **GitHub**. Repository: this repo. Branch: `main`. Compose path: `docker-compose.yml`.
-3. Open **Environment** and paste the variables below. Dokploy writes them to a `.env` file next to the compose file. They are not injected on their own; `docker-compose.yml` already references each one as `${VAR}`, which is what Compose reads from that file.
+3. Open the **Environment** tab and paste the fields below. This is the only place database and secret values are entered. Generate the two secrets with the Node commands in [Quick start](#quick-start-local); use a hex password so it stays a single token.
 
    ```bash
-   DATABASE_URL=postgresql://USER:PASSWORD@dokploy-db-service:5432/DBNAME
+   POSTGRES_USER=creditos
+   POSTGRES_PASSWORD=replace-with-openssl-rand-hex-24
+   POSTGRES_DB=creditos
    NUXT_SESSION_PASSWORD=replace-with-48-bytes-base64
    APP_ENCRYPTION_KEY=replace-with-32-bytes-base64
-   APP_MODE=demo
-   DEMO_SEED=true
-   AUTO_MIGRATE=true
-   OPENROUTER_API_KEY=
-   MAIL_OUTBOUND_PROVIDER=sandbox
-   ```
-
-   Generate the two secrets on any machine with Node (same commands as in Quick start):
-
-   ```bash
-   node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"   # NUXT_SESSION_PASSWORD
-   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"   # APP_ENCRYPTION_KEY
    ```
 
    | Variable | Required | Notes |
    | --- | --- | --- |
-   | `DATABASE_URL` | yes | Internal Postgres URL from step 3. `NUXT_DATABASE_URL` is also accepted. |
-   | `NUXT_SESSION_PASSWORD` | yes | 32+ characters. Signs and encrypts the session cookie. Changing it signs everyone out. |
-   | `APP_ENCRYPTION_KEY` | yes | 32-byte key (base64 or hex) for AES-256-GCM secrets. Rotating it makes stored provider keys unreadable; enter them again in Settings. |
-   | `APP_MODE` | no | `demo` (default) · `test` · `live`. See [Operating modes](#operating-modes). |
-   | `DEMO_SEED` | no | `true` loads the synthetic workspace when the database is empty. Set `false` before real data. |
-   | `AUTO_MIGRATE` | no | `true` applies `server/db/migrations` on boot. |
-   | `OPENROUTER_API_KEY` | no | Optional. You can also store the key encrypted from Settings → AI council. |
-   | `MAIL_OUTBOUND_PROVIDER`, `POSTGRID_API_KEY`, `MAIL_WEBHOOK_SECRET` | no | Outbound mail. Stays `sandbox` until you opt into a provider. |
+   | `POSTGRES_PASSWORD` | yes | Password for the database this stack creates. |
+   | `POSTGRES_USER` | no | Defaults to `creditos`. |
+   | `POSTGRES_DB` | no | Defaults to `creditos`. |
+   | `NUXT_SESSION_PASSWORD` | yes | 32+ characters. Signs the session cookie. Changing it signs everyone out. |
+   | `APP_ENCRYPTION_KEY` | yes | 32-byte key (base64 or hex). Rotating it makes stored provider keys unreadable. |
+   | `APP_MODE` | no | `demo` (default) · `test` · `live`. |
+   | `DEMO_SEED` | no | `true` loads the synthetic workspace when the database is empty. |
+   | `OPENROUTER_API_KEY` | no | Optional here. Settings → AI council can store it encrypted instead. |
+   | `POSTGRES_HOST` | no | Defaults to the Postgres service in this compose file. Set it only to point at a database you already created in Dokploy. |
 
-4. Leave the compose file's named volume `creditos-data` mounted at `/data`. That is where uploads and rendered PDFs live, and it is the kind of volume Dokploy can back up. Do not replace it with an absolute host path such as `/opt/data:/data` — Dokploy cleans those on redeploy. If you need a bind mount, use Dokploy's `../files/...` path.
-5. Do not add Traefik labels, a `container_name`, or a `version:` key. Dokploy attaches routing itself when you add a domain.
+   Do not add a volume, a `container_name`, Traefik labels, or a `version:` key. Dokploy saves the Environment tab to `.env`, and the compose file already reads those names.
 
-#### Alternative: Application service (Dockerfile)
+### 3. Add the domain and deploy
 
-Use this if you prefer an Application over Compose.
+1. **Domains → Add domain**. Host: `creditos.example.com`. Service: `creditos`. Container port: **3000**. HTTPS on, certificate **Let's Encrypt**.
+2. **General → Deploy**. The build log is on the **Deployments** tab. Compose creates `creditos-pg` and `creditos-data` during this deploy.
+3. Check `https://creditos.example.com/api/health`. `200` means the process is up, Postgres answered, and migrations ran.
+4. Sign in with `demo@creditos.local` / `creditos-demo` while `APP_MODE=demo`.
 
-1. **Create Service → Application**. Provider GitHub, this repo, branch `main`, build path `/`.
-2. Build type **Dockerfile**. Dockerfile path `Dockerfile`, Docker context `.`, build stage `runtime`. Do not use Nixpacks or Railpack; this repo's supported build is the Dockerfile.
-3. **Environment**: same variables as the table above. On an Application service Dokploy injects them into the container directly, so no `${VAR}` wiring is required.
-4. **Advanced → Volumes**: add a volume with mount path `/data` (the image default for `DATA_DIR`).
-5. The container listens on port 3000. Do not map host port 3000.
+A push to the selected branch redeploys the containers and leaves both volumes in place.
 
-### 5. Attach the domain
-
-1. Open the service's **Domains** tab → **Add domain**.
-2. Host: `creditos.example.com`.
-3. Compose service name: `creditos`. Container port: **3000** (the process port, not the published host port 3010).
-4. HTTPS on, certificate **Let's Encrypt**.
-5. Save. For an Application service the domain is picked up without a rebuild. A generated `traefik.me` hostname is HTTP-only and is enough for a first smoke test.
-
-### 6. Deploy and check
-
-1. **General → Deploy**. Watch the **Deployments** log until the build succeeds.
-2. Confirm readiness:
-
-   ```bash
-   curl -fsS https://creditos.example.com/api/health
-   ```
-
-   `200` means the process is up, Postgres answered, and migrations ran.
-3. Open the domain. With `APP_MODE=demo` and `DEMO_SEED=true`, sign in with `demo@creditos.local` / `creditos-demo`. The first boot migrates and seeds; later boots keep the same database.
-4. The next push to the selected branch builds and replaces the container. The `/data` volume and the Postgres service survive that.
-
-### 7. Switch off the demo
-
-When the workspace is yours and not the synthetic file:
-
-1. Set `APP_MODE=live` (or `test` while you rehearse) and `DEMO_SEED=false`, then redeploy.
-2. Put the OpenRouter key in Settings → AI council, or in `OPENROUTER_API_KEY`.
-3. Walk the production checklist in [`SECURITY.md`](./SECURITY.md) and the provider matrix in [`INTEGRATIONS.md`](./INTEGRATIONS.md) before pointing mail at a live provider.
+To leave the demo, set `APP_MODE=live` and `DEMO_SEED=false` in the Environment tab and deploy again. Then follow [`SECURITY.md`](./SECURITY.md) and [`INTEGRATIONS.md`](./INTEGRATIONS.md) before using a live mail provider.
 
 ### Plain Docker (no Dokploy)
 
 ```bash
-# DATABASE_URL, NUXT_SESSION_PASSWORD and APP_ENCRYPTION_KEY must be set
+# .env must define POSTGRES_PASSWORD, NUXT_SESSION_PASSWORD and APP_ENCRYPTION_KEY
 docker compose up -d --build
-# app on http://localhost:3010  (set CREDITOS_HOST_PORT=3000 to use port 3000 instead)
+# http://localhost:3010   (CREDITOS_HOST_PORT=3000 to publish on port 3000 instead)
 ```
 
 ## Operating modes

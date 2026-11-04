@@ -2,7 +2,9 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # CreditOS — production image (Dokploy / any Docker host)
 # Single container: Nuxt 4 (Nitro node-server) + in-process job worker.
-# PostgreSQL is external; set DATABASE_URL at runtime.
+# Dokploy Compose starts Postgres beside this image. The entrypoint builds
+# DATABASE_URL from POSTGRES_* (the Environment tab). An explicit DATABASE_URL
+# is used when POSTGRES_HOST is not set.
 # ─────────────────────────────────────────────────────────────────────────────
 
 FROM node:22-alpine AS base
@@ -38,12 +40,14 @@ RUN addgroup -S creditos && adduser -S creditos -G creditos \
 COPY --from=build --chown=creditos:creditos /app/.output ./.output
 COPY --from=build --chown=creditos:creditos /app/server/db/migrations ./server/db/migrations
 COPY --from=build --chown=creditos:creditos /app/package.json ./package.json
+COPY --chmod=755 docker/entrypoint.sh /entrypoint.sh
 
 USER creditos
 VOLUME ["/data"]
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
   CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", ".output/server/index.mjs"]
