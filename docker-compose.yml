@@ -1,15 +1,12 @@
 # Dokploy Compose service, or plain `docker compose up -d`.
 #
-# The Environment tab only needs two secrets:
-#   NUXT_SESSION_PASSWORD
-#   APP_ENCRYPTION_KEY
-# PostgreSQL is not part of this stack. On first launch the app asks for a
-# connection string, checks it, and saves it encrypted in the creditos-data
-# volume. Change it later in Settings → Database. Compose creates that volume
-# on the first deploy.
+# No environment variables are required. If NUXT_SESSION_PASSWORD or
+# APP_ENCRYPTION_KEY are absent, the container generates them on first start
+# and saves them on the creditos-data volume. PostgreSQL is not part of this
+# stack: the first page asks for a connection string and stores it encrypted
+# on that same volume. Compose creates the volume on the first deploy.
 #
-# The app listens on 8176, a high port that is not already used by Dokploy.
-# Point the domain at container port 8176.
+# The app listens on 8176. Point the Dokploy domain at container port 8176.
 services:
   creditos:
     build:
@@ -19,13 +16,15 @@ services:
     restart: unless-stopped
     ports:
       - "8176:8176"
+    # Dokploy writes the Environment tab to .env. It is optional.
+    env_file:
+      - path: .env
+        required: false
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: "8176"
       APP_MODE: ${APP_MODE:-demo}
-      NUXT_SESSION_PASSWORD: ${NUXT_SESSION_PASSWORD:?Set NUXT_SESSION_PASSWORD in the Dokploy Environment tab}
-      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?Set APP_ENCRYPTION_KEY in the Dokploy Environment tab}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_DEFAULT_MODEL: ${OPENROUTER_DEFAULT_MODEL:-openai/gpt-4o-mini}
       MAIL_OUTBOUND_PROVIDER: ${MAIL_OUTBOUND_PROVIDER:-sandbox}
@@ -37,7 +36,7 @@ services:
     volumes:
       - creditos-data:/data
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8176/api/health"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8176/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 5s
       retries: 5

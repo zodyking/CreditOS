@@ -119,7 +119,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"   # 
 
 ## Publish with Dokploy
 
-The Environment tab only needs two values. The database connection string is entered in the browser on first launch and saved encrypted on the volume Compose creates (`creditos-data`, mounted at `/data`). You do not attach a volume yourself, and you do not put `DATABASE_URL` in the environment.
+The Environment tab can be left empty. On first start the container generates `NUXT_SESSION_PASSWORD` and `APP_ENCRYPTION_KEY` and saves them on the volume Compose creates (`creditos-data`, mounted at `/data`). The database connection string is entered in the browser on first launch and saved encrypted on that same volume. You do not attach a volume yourself, and you do not put `DATABASE_URL` in the environment.
 
 The app listens on port **8176** (host and container). That stays clear of Dokploy's panel on port 3000. The domain targets container port **8176**.
 
@@ -130,19 +130,14 @@ In the same Dokploy project, **Create Service → Database → PostgreSQL** and 
 ### 2. Publish CreditOS
 
 1. **Create Service → Compose**. Source: **GitHub**, this repo, branch `main`, compose path `docker-compose.yml`.
-2. **Environment** tab — these two lines are the whole environment. Generate them with the Node commands in [Quick start](#quick-start-local).
+2. Leave the **Environment** tab empty and deploy. To choose the secrets yourself instead, turn on **Create .env file** and paste:
 
    ```bash
    NUXT_SESSION_PASSWORD=replace-with-48-bytes-base64
    APP_ENCRYPTION_KEY=replace-with-32-bytes-base64
    ```
 
-   | Variable | Required | Notes |
-   | --- | --- | --- |
-   | `NUXT_SESSION_PASSWORD` | yes | 32+ characters. Signs the session cookie. Changing it signs everyone out. |
-   | `APP_ENCRYPTION_KEY` | yes | 32-byte key. Encrypts the saved database URL and provider secrets. Rotating it means pasting the connection string again. |
-   | `APP_MODE` | no | `demo` (default) · `test` · `live`. |
-   | `DEMO_SEED` | no | `true` loads the synthetic workspace the first time a database connects and is empty. |
+   Generate them with the Node commands in [Quick start](#quick-start-local). Changing either value later signs everyone out, and a new encryption key means pasting the database connection string again.
 
 3. **Domains → Add domain**. Service `creditos`, container port **8176**, HTTPS with Let's Encrypt. Point DNS at the server before this step.
 4. **Deploy.** Compose creates the `creditos-data` volume during this deploy.
@@ -161,7 +156,7 @@ To leave the demo, set `APP_MODE=live` and `DEMO_SEED=false` in the Environment 
 ### Plain Docker (no Dokploy)
 
 ```bash
-# .env must define NUXT_SESSION_PASSWORD and APP_ENCRYPTION_KEY
+# No .env is required. The container generates the two secrets on first start.
 docker compose up -d --build
 # http://localhost:8176   then paste a Postgres URL on the first page
 ```

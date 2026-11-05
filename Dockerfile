@@ -39,12 +39,14 @@ RUN addgroup -S creditos && adduser -S creditos -G creditos \
 COPY --from=build --chown=creditos:creditos /app/.output ./.output
 COPY --from=build --chown=creditos:creditos /app/server/db/migrations ./server/db/migrations
 COPY --from=build --chown=creditos:creditos /app/package.json ./package.json
+COPY --chmod=755 docker/entrypoint.sh /entrypoint.sh
 
 USER creditos
 VOLUME ["/data"]
 EXPOSE 8176
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:8176/api/health || exit 1
+  CMD node -e "fetch('http://127.0.0.1:8176/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", ".output/server/index.mjs"]

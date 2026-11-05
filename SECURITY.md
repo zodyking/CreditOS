@@ -74,10 +74,10 @@ Open a private security advisory on the GitHub repository (Security → Advisori
 ## 4. Production launch checklist
 
 - [ ] `APP_MODE` set deliberately (`test` first, then `live`); `DEMO_SEED=false`.
-- [ ] Strong, unique `NUXT_SESSION_PASSWORD` (≥ 48 random bytes) and `APP_ENCRYPTION_KEY` (32 random bytes) stored in Dokploy secrets, never in the repository. Rotating `APP_ENCRYPTION_KEY` requires re-entering stored provider keys.
+- [ ] `NUXT_SESSION_PASSWORD` (≥ 48 random bytes) and `APP_ENCRYPTION_KEY` (32 random bytes) are unique. If the Dokploy Environment tab is empty, the container generates both on first start and stores them in `/data` (`session-password`, `encryption-key`). They are never written to the repository. Rotating `APP_ENCRYPTION_KEY` requires pasting the database connection string and provider keys again.
 - [ ] `MAIL_WEBHOOK_SECRET` set to the provider's signing secret; webhook URL configured at the provider.
 - [ ] PostgreSQL reachable only from the app network. Its connection string is pasted in the app, not stored in the environment, and is encrypted in `DATA_DIR/database.enc` with `APP_ENCRYPTION_KEY`.
-- [ ] Volume `creditos-data` (`/data`) exists after the first deploy (Compose creates it). It holds that file plus uploads. Back it up; enable disk encryption on the host. Rotating `APP_ENCRYPTION_KEY` makes `database.enc` unreadable until the connection string is pasted again.
+- [ ] Volume `creditos-data` (`/data`) exists after the first deploy (Compose creates it). It holds the generated secrets, the encrypted database URL, and uploads. Back it up; enable disk encryption on the host. Losing the volume means new secrets and a new connection-string prompt.
 - [ ] HTTPS enforced at the reverse proxy; HSTS enabled; HTTP → HTTPS redirect.
 - [ ] Reverse-proxy rate limiting on `/api/auth/login` and `/api/webhooks/*`.
 - [ ] Network-level access control (VPN/zero-trust/proxy auth) in front of the app, since there is no MFA.
