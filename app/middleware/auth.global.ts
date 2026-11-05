@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware(async to => {
   if (import.meta.server || !loggedIn.value) await fetch()
   const gate = useState<AppStatus | null>('app-status-gate', () => null)
   if (!gate.value || to.path === '/setup') gate.value = await $fetch<AppStatus>('/api/auth/status')
-  if (!gate.value.bootOk) {
+  if (!gate.value.bootOk || !gate.value.modeChosen) {
     if (to.path !== '/setup') return navigateTo('/setup')
     return
   }

@@ -6,6 +6,7 @@ import { registerAllJobHandlers, scheduleRecurring } from '../domains/jobs/handl
 import { startWorker, stopWorker } from '../domains/jobs/queue'
 import { seedDemo } from '../domains/seed/demo'
 import { connectAndSave, resolveDatabaseUrl } from '../utils/database-store'
+import { readSavedAppMode } from '../utils/app-mode'
 import { redactConnectionError, type DatabaseDescription } from '../utils/database-url'
 
 export interface BootState {
@@ -65,7 +66,7 @@ export async function bootDatabase(): Promise<BootState> {
     }
     await ensureStorage()
     await ensureAgencies()
-    if (env.demoSeed && env.appMode === 'demo') {
+    if (env.demoSeed && readSavedAppMode() === 'demo') {
       const res = await seedDemo()
       state.seeded = res.seeded
       if (res.seeded) console.info('[creditos] synthetic demo dataset seeded (demo@creditos.local / creditos-demo)')

@@ -4,12 +4,13 @@ export interface AppStatus {
   demoSeeded: boolean
   bootOk: boolean
   bootError: string | null
+  modeChosen: boolean
   databaseConfigured: boolean
   database: { user: string; host: string; database: string } | null
 }
 
 export function useAppStatus() {
-  const fallback: AppStatus = { hasUser: true, appMode: 'demo', demoSeeded: false, bootOk: true, bootError: null, databaseConfigured: true, database: null }
+  const fallback: AppStatus = { hasUser: true, appMode: 'demo', demoSeeded: false, bootOk: true, bootError: null, modeChosen: true, databaseConfigured: true, database: null }
   return useAsyncData<AppStatus>('app-status', () => $fetch<AppStatus>('/api/auth/status'), { default: () => fallback })
 }
 

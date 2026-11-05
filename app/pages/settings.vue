@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AGENT_ROLES, AGENT_ROLE_META, AUTOMATION_MODES, AUTOMATION_MODE_LABEL, ISSUE_CATEGORY_LABEL, REMEDY_CHANNEL_LABEL, type AgentRole, type AutomationMode } from '#shared/constants'
+import type { AppStatus } from '~/composables/useAppStatus'
 import { TONE_CLASS, fmtDate, money, relTime, titleize } from '~/utils/format'
 
 useHead({ title: 'Settings' })
@@ -151,6 +152,29 @@ async function saveDatabase() {
   }
 }
 
+const { refresh: refreshAppStatus } = useAppStatus()
+const workspaceMode = ref<'demo' | 'test' | 'live'>('demo')
+watch(
+  data,
+  d => {
+    if (d?.app.mode === 'demo' || d?.app.mode === 'test' || d?.app.mode === 'live') workspaceMode.value = d.app.mode
+  },
+  { immediate: true },
+)
+const MODE_CHOICES = [
+  { id: 'demo' as const, title: 'Demo', body: 'Synthetic data, simulated council, sandbox mail.' },
+  { id: 'test' as const, title: 'Test', body: 'Your data. Mail stays in the sandbox. Live AI if you add a key.' },
+  { id: 'live' as const, title: 'Live', body: 'Approved letters can go to a real mail provider.' },
+]
+function saveMode() {
+  return run('mode', async () => {
+    await api('/api/settings/mode', { method: 'POST', body: { mode: workspaceMode.value } })
+    const gate = useState<AppStatus | null>('app-status-gate', () => null)
+    gate.value = null
+    await refreshAppStatus()
+  }, 'Workspace mode saved')
+}
+
 async function logout() {
   await api('/api/auth/logout', { method: 'POST' })
   await clearSession()
@@ -268,7 +292,7 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
               </details>
               <label class="flex items-start gap-2 text-sm cursor-pointer rounded-md border border-border p-3" :class="ai.liveEnabled ? 'border-verdigris-500/50 bg-verdigris-500/5' : ''">
                 <input v-model="ai.liveEnabled" type="checkbox" class="size-4 mt-0.5 accent-[var(--accent)]">
-                <span><span class="font-medium">Enable live council runs</span><br><span class="text-xs text-fg-2">Requires APP_MODE=test or live, a verified key and the “AI processing” consent. Costs are capped per run.</span></span>
+                <span><span class="font-medium">Enable live council runs</span><br><span class="text-xs text-fg-2">Requires Test or Live mode, a verified key and the “AI processing” consent. Costs are capped per run.</span></span>
               </label>
               <div class="flex justify-end"><button class="btn btn-primary" :disabled="busy === 'ai'" @click="saveAi"><Icon v-if="busy === 'ai'" name="lucide:loader-2" class="size-4 animate-spin" /> Save AI settings</button></div>
             </div>
@@ -426,6 +450,27 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
 
         <!-- System -->
         <template v-else>
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Workspace mode</h2>
+                <p class="sub">Chosen here, not in the environment. Records keep the label they had when they were created.</p>
+              </div>
+              <ModeBadge :mode="data.app.mode" size="sm" />
+            </div>
+            <form class="px-5 sm:px-6 py-5 space-y-4" @submit.prevent="saveMode">
+              <div class="grid gap-2">
+                <label v-for="m in MODE_CHOICES" :key="m.id" class="flex items-start gap-3 rounded-md border p-3 cursor-pointer" :class="workspaceMode === m.id ? 'border-accent bg-accent/5' : 'border-border'">
+                  <input v-model="workspaceMode" type="radio" name="workspace-mode" class="mt-1" :value="m.id">
+                  <span><span class="font-medium">{{ m.title }}</span><span class="block text-xs text-fg-2 mt-0.5 leading-relaxed">{{ m.body }}</span></span>
+                </label>
+              </div>
+              <button type="submit" class="btn btn-primary" :disabled="busy === 'mode' || workspaceMode === data.app.mode">
+                <Icon v-if="busy === 'mode'" name="lucide:loader-2" class="size-4 animate-spin" />
+                Save mode
+              </button>
+            </form>
+          </section>
           <section class="card">
             <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">System</h2></div>
             <dl class="px-5 py-4 grid gap-3 sm:grid-cols-2 text-sm">

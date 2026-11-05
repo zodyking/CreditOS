@@ -295,7 +295,7 @@ const catTone: Record<string, string> = { corrected: TONE_CLASS.success, deleted
     <!-- Providers -->
     <div v-else class="grid gap-6 lg:grid-cols-2">
       <div class="card">
-        <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Outbound providers</h2><p class="text-xs text-fg-3">Set <span class="mono">MAIL_OUTBOUND_PROVIDER</span> and the provider's API key to switch. Live providers only activate when <span class="mono">APP_MODE=live</span>.</p></div>
+        <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Outbound providers</h2><p class="text-xs text-fg-3">Set <span class="mono">MAIL_OUTBOUND_PROVIDER</span> and the provider's API key to switch. Live providers only send when the workspace mode is Live.</p></div>
         <ul class="divide-y divide-border">
           <li v-for="p in outbound?.providers ?? []" :key="p.slug" class="px-5 py-4 text-sm">
             <div class="flex items-center gap-2 flex-wrap"><p class="font-medium">{{ p.label }}</p><ModeBadge :mode="p.mode" /><span v-if="p.active" class="pill" :class="TONE_CLASS.live">active</span><span class="pill" :class="p.configured ? TONE_CLASS.success : TONE_CLASS.neutral">{{ p.configured ? 'configured' : 'not configured' }}</span></div>

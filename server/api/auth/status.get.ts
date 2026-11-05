@@ -4,6 +4,7 @@ import { env } from '../../utils/env'
 import { hasAnyUser } from '../../utils/auth'
 import { getBootState } from '../../plugins/boot'
 import { databasePublicStatus } from '../../utils/database-store'
+import { appModeChosen } from '../../utils/app-mode'
 import { DEMO_EMAIL } from '../../domains/seed/demo'
 
 export default defineEventHandler(async () => {
@@ -17,6 +18,7 @@ export default defineEventHandler(async () => {
     demoSeeded,
     bootOk: boot.ok,
     bootError: boot.error,
+    modeChosen: appModeChosen(),
     databaseConfigured: database.configured,
     database: database.connection,
   }

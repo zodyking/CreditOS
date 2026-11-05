@@ -24,13 +24,11 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: "8176"
-      APP_MODE: ${APP_MODE:-demo}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_DEFAULT_MODEL: ${OPENROUTER_DEFAULT_MODEL:-openai/gpt-4o-mini}
       MAIL_OUTBOUND_PROVIDER: ${MAIL_OUTBOUND_PROVIDER:-sandbox}
       MAIL_INBOUND_PROVIDER: ${MAIL_INBOUND_PROVIDER:-manual}
       MAIL_WEBHOOK_SECRET: ${MAIL_WEBHOOK_SECRET:-}
-      DEMO_SEED: ${DEMO_SEED:-true}
       AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
       DATA_DIR: /data
     volumes:

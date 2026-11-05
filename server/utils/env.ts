@@ -1,4 +1,5 @@
 import type { AppMode } from '#shared/constants'
+import { readSavedAppMode } from './app-mode'
 
 /**
  * Centralised environment access. Accepts both un-prefixed names (what a
@@ -21,9 +22,9 @@ export const env = {
   get hasDatabaseUrl(): boolean {
     return !!pick('DATABASE_URL', 'NUXT_DATABASE_URL')
   },
+  /** Workspace mode chosen on first launch. Falls back to demo only before a choice is saved. */
   get appMode(): AppMode {
-    const v = (pick('APP_MODE', 'NUXT_APP_MODE') ?? 'demo').toLowerCase()
-    return (['demo', 'test', 'live'].includes(v) ? v : 'demo') as AppMode
+    return readSavedAppMode() ?? 'demo'
   },
   get encryptionKey(): string | undefined {
     return pick('APP_ENCRYPTION_KEY', 'NUXT_APP_ENCRYPTION_KEY')

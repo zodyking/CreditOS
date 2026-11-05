@@ -40,7 +40,7 @@ export default defineEventHandler(async event => {
       keySource: key.source,
       keyMasked: key.key ? maskTail(key.key, 4) : null,
       liveCapable: env.appMode !== 'demo' && aiConfig.liveEnabled && !!key.key,
-      liveBlockedReason: env.appMode === 'demo' ? 'APP_MODE is demo — live AI is disabled by design' : !key.key ? 'No OpenRouter API key configured' : !aiConfig.liveEnabled ? 'Live council runs are switched off' : null,
+      liveBlockedReason: env.appMode === 'demo' ? 'Demo mode keeps the council on the simulator. Switch to Test or Live under Settings → System.' : !key.key ? 'No OpenRouter API key configured' : !aiConfig.liveEnabled ? 'Live council runs are switched off' : null,
     },
     consents: CONSENT_KINDS.map(kind => {
       const row = consentRows.find(r => r.kind === kind)

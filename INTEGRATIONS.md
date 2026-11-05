@@ -13,7 +13,7 @@ Legend used below:
 
 ## 1. Operating modes: Demo / Test / Live
 
-`APP_MODE` is read at boot (`demo` by default).
+The workspace mode is chosen on first launch and stored on the server. It is not read from the environment.
 
 | | `demo` | `test` | `live` |
 | --- | --- | --- | --- |
@@ -23,9 +23,9 @@ Legend used below:
 | Inbound mail | Manual upload | Manual upload (+ connector if ever configured) | Same |
 | Labels | Orchid **Demo** badges on snapshots, council runs, mail orders and scenarios | Live/Sandbox badges per record | Live/Sandbox badges per record |
 
-To switch modes, change `APP_MODE` and restart the container. Mode is recorded on every snapshot, council run, mail order and inbound item at the time it was created, so historical demo records stay labelled Demo after switching to live.
+Change the mode later under Settings → System. No restart is required. Mode is recorded on every snapshot, council run, mail order and inbound item at the time it was created, so historical demo records stay labelled Demo after switching to live.
 
-Settings → AI shows the current reason live AI is unavailable (`APP_MODE is demo`, `No OpenRouter API key configured`, or `Live council runs are switched off`).
+Settings → AI shows why live AI is unavailable (demo mode, no OpenRouter key, or live runs switched off).
 
 ---
 
@@ -68,7 +68,7 @@ Approval bundles display and hash the exact mailing consent text the user accept
 | Key verification | **Implemented** | `GET https://openrouter.ai/api/v1/auth/key` on store/verify. |
 | Model catalogue | **Implemented** | `GET https://openrouter.ai/api/v1/models`, cached 10 minutes, searchable by name/provider, filterable to models that support structured outputs; shows context length, pricing and modality flags. |
 | Advanced model selection | **Implemented** | A default model plus an optional per-role override for each of the six council roles; temperature, max tokens, per-run cost cap (USD), provider routing (`provider.order`, `allow_fallbacks`, `require_parameters`). |
-| Live council | **Implemented** (requires key, `APP_MODE≠demo`, consent, live toggle) | Six roles × three rounds with JSON-schema structured outputs, citation validation against the dossier (fabrication gate) and cost accounting per run. Exceeding the cost cap aborts the run: it is marked `failed` with the spend recorded, a case event and a notification are written, and no plan is produced. |
+| Live council | **Implemented** (requires key, Test or Live mode, consent, live toggle) | Six roles × three rounds with JSON-schema structured outputs, citation validation against the dossier (fabrication gate) and cost accounting per run. Exceeding the cost cap aborts the run: it is marked `failed` with the spend recorded, a case event and a notification are written, and no plan is produced. |
 | Connection probe | **Implemented** | Settings → AI → "Run probe" issues a tiny structured completion and reports latency and cost. |
 | Local/offline models | **Not implemented** | OpenRouter only. |
 
@@ -92,7 +92,7 @@ Simulated provider events can be posted from Mailroom → Outbound → "Simulate
 
 | Operation | Status | Notes |
 | --- | --- | --- |
-| Create letter order (`POST /print-mail/v1/letters`, multipart PDF, `x-api-key`) | **Implemented** | CreditOS's idempotency key is sent as the `Idempotency-Key` header; the external order id is stored. `test_sk_` keys keep the adapter in sandbox mode; `live_sk_` + `APP_MODE=live` is required for live. |
+| Create letter order (`POST /print-mail/v1/letters`, multipart PDF, `x-api-key`) | **Implemented** | CreditOS's idempotency key is sent as the `Idempotency-Key` header; the external order id is stored. `test_sk_` keys keep the adapter in sandbox mode; `live_sk_` plus Live workspace mode is required for live. |
 | Fetch letter status (`GET /print-mail/v1/letters/{id}`) | **Implemented** | Mapped to CreditOS outbound states; unknown statuses become `TRACKING_UNKNOWN`, never "delivered". |
 | Webhooks (`POST /api/webhooks/mail/postgrid`) | **Implemented** | HS256 JWT signature verified with `MAIL_WEBHOOK_SECRET`; events applied idempotently by external event id; duplicates are counted and ignored. |
 | Address verification | **Not implemented** | PostGrid Address Verification is a separate product; only a local completeness check runs. |
