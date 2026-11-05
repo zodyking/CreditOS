@@ -11,19 +11,30 @@ const { clear: clearSession } = useUserSession()
 const { data, refresh, pending } = await useFetch('/api/settings', { key: 'settings' })
 const { data: jobsData, refresh: refreshJobs } = await useFetch('/api/settings/jobs', { key: 'settings-jobs', lazy: true, server: false })
 
-type Section = 'database' | 'mail' | 'ai' | 'consents' | 'profile' | 'providers' | 'jobs' | 'rules' | 'system'
-const SECTIONS: { k: Section; l: string; i: string }[] = [
-  { k: 'database', l: 'Database', i: 'lucide:database' },
-  { k: 'mail', l: 'Email', i: 'lucide:mail' },
-  { k: 'ai', l: 'AI council (OpenRouter)', i: 'lucide:brain-circuit' },
-  { k: 'consents', l: 'Consents & automation', i: 'lucide:shield-check' },
-  { k: 'profile', l: 'Profile & address', i: 'lucide:user-round' },
-  { k: 'providers', l: 'Integrations', i: 'lucide:plug' },
-  { k: 'jobs', l: 'Background jobs', i: 'lucide:list-checks' },
-  { k: 'rules', l: 'Rule packs', i: 'lucide:scale' },
-  { k: 'system', l: 'System', i: 'lucide:server' },
+type Section = 'account' | 'database' | 'mail' | 'ai' | 'advanced'
+const SECTION_ALIAS: Record<string, Section> = {
+  account: 'account',
+  profile: 'account',
+  system: 'account',
+  database: 'database',
+  mail: 'mail',
+  ai: 'ai',
+  advanced: 'advanced',
+  consents: 'advanced',
+  providers: 'advanced',
+  jobs: 'advanced',
+  rules: 'advanced',
+}
+const NAV: { label: string; items: { k: Section; l: string; i: string }[] }[] = [
+  { label: 'You', items: [{ k: 'account', l: 'Account', i: 'lucide:user-round' }] },
+  { label: 'Setup', items: [
+    { k: 'database', l: 'Database', i: 'lucide:database' },
+    { k: 'mail', l: 'Email', i: 'lucide:mail' },
+    { k: 'ai', l: 'AI', i: 'lucide:brain-circuit' },
+  ] },
+  { label: 'System', items: [{ k: 'advanced', l: 'Advanced', i: 'lucide:sliders-horizontal' }] },
 ]
-const section = ref<Section>((SECTIONS.some(s => s.k === route.query.s) ? String(route.query.s) : 'database') as Section)
+const section = ref<Section>(SECTION_ALIAS[String(route.query.s ?? '')] ?? 'account')
 watch(section, s => router.replace({ query: { s } }))
 
 const api = useApi()
@@ -256,16 +267,17 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
 
 <template>
   <div>
-    <PageHeader title="Settings" eyebrow="Configuration" description="Database, email, model selection, consents, your mailing identity, integrations and the job queue. Secrets are encrypted at rest and never echoed back." />
+    <PageHeader title="Settings" description="Account, database, email, and AI. Consents, jobs, and rules are under Advanced." />
 
     <div v-if="pending && !data" class="skeleton h-64" />
     <div v-else-if="data" class="grid gap-6 lg:grid-cols-4">
       <nav class="lg:col-span-1" aria-label="Settings sections">
-        <ul class="card p-1.5 flex lg:flex-col gap-0.5 overflow-x-auto">
-          <li v-for="s in SECTIONS" :key="s.k">
-            <button type="button" class="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm whitespace-nowrap" :class="section === s.k ? 'bg-accent/10 text-fg font-medium' : 'text-fg-2 hover:bg-surface-2'" :aria-current="section === s.k ? 'page' : undefined" @click="section = s.k"><Icon :name="s.i" class="size-4" /> {{ s.l }}</button>
-          </li>
-        </ul>
+        <div class="card p-1.5 flex lg:flex-col gap-1 overflow-x-auto">
+          <div v-for="g in NAV" :key="g.label" class="flex lg:flex-col gap-0.5 min-w-0">
+            <p class="hidden lg:block px-3 pt-2 pb-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-fg-3">{{ g.label }}</p>
+            <button v-for="s in g.items" :key="s.k" type="button" class="flex items-center gap-2 rounded-md px-3 py-2 text-sm whitespace-nowrap" :class="section === s.k ? 'bg-accent/10 text-fg font-medium' : 'text-fg-2 hover:bg-surface-2'" :aria-current="section === s.k ? 'page' : undefined" @click="section = s.k"><Icon :name="s.i" class="size-4" /> {{ s.l }}</button>
+          </div>
+        </div>
       </nav>
 
       <div class="lg:col-span-3 space-y-6">
@@ -518,8 +530,7 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
           </section>
         </template>
 
-        <!-- Consents -->
-        <template v-else-if="section === 'consents'">
+        <template v-else-if="section === 'advanced'">
           <section class="card">
             <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Consents</h2><p class="text-xs text-fg-3">Each capability is gated by an explicit, revocable consent. Revoking one blocks the features listed under it until re-granted.</p></div>
             <ul class="divide-y divide-border">
@@ -544,10 +555,82 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
               </button>
             </div>
           </section>
+          <section class="card">
+            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Integration status</h2><p class="text-xs text-fg-3">Configured through environment variables (Dokploy → Environment). See <span class="mono">INTEGRATIONS.md</span> for every variable and what each provider actually supports.</p></div>
+            <div class="divide-y divide-border text-sm">
+              <div class="px-5 py-4">
+                <p class="eyebrow mb-2">Outbound mail <span class="normal-case tracking-normal text-fg-3">· active: {{ data.outbound.active }} · webhook secret {{ data.outbound.webhookSecretConfigured ? 'set' : 'using sandbox default' }}</span></p>
+                <ul class="space-y-2">
+                  <li v-for="p in data.outbound.providers" :key="p.slug" class="flex flex-wrap items-center gap-2"><span class="font-medium w-40">{{ p.label }}</span><ModeBadge :mode="p.mode" /><span class="pill" :class="p.configured ? TONE_CLASS.success : TONE_CLASS.neutral">{{ p.configured ? 'configured' : 'not configured' }}</span><span v-if="p.active" class="pill" :class="TONE_CLASS.live">active</span><span class="text-xs text-fg-3 basis-full sm:basis-auto sm:ml-2">{{ p.configurationHelp }}</span></li>
+                </ul>
+              </div>
+              <div class="px-5 py-4">
+                <p class="eyebrow mb-2">Inbound mail <span class="normal-case tracking-normal text-fg-3">· active: {{ data.inbound.active }}</span></p>
+                <ul class="space-y-2">
+                  <li v-for="p in data.inbound.providers" :key="p.slug" class="flex flex-wrap items-center gap-2"><span class="font-medium w-40">{{ p.label }}</span><ModeBadge :mode="p.mode" /><span class="pill" :class="p.configured ? TONE_CLASS.success : TONE_CLASS.neutral">{{ p.configured ? 'configured' : 'not configured' }}</span><span class="text-xs text-fg-3 basis-full sm:basis-auto sm:ml-2">{{ p.configurationHelp }}</span></li>
+                </ul>
+              </div>
+              <div class="px-5 py-4">
+                <p class="eyebrow mb-2">Credit reports</p>
+                <p class="text-sm text-fg-2">Equifax, Experian, and TransUnion files are imported on the Reports page. A score is shown only when the imported file includes one.</p>
+              </div>
+            </div>
+          </section>
+          <section class="card">
+            <div class="px-5 py-4 border-b border-border flex flex-wrap items-center gap-2">
+              <h2 class="font-semibold">Job queue</h2>
+              <div class="flex gap-1.5 ml-auto"><span v-for="(n, s) in jobsData?.counts ?? {}" :key="s" class="pill" :class="jobTone[String(s)] ?? TONE_CLASS.neutral">{{ n }} {{ s }}</span></div>
+              <button class="btn btn-ghost btn-sm" @click="refreshJobs()"><Icon name="lucide:refresh-cw" class="size-3.5" /></button>
+            </div>
+            <p class="px-5 py-2 text-xs text-fg-3 border-b border-border">Postgres-backed queue with <span class="mono">FOR UPDATE SKIP LOCKED</span>, exponential retries and a dead-letter state. Idempotency keys prevent duplicate dispatches.</p>
+            <div class="overflow-x-auto">
+              <table class="table min-w-[720px]">
+                <thead><tr><th>Kind</th><th>Status</th><th>Attempts</th><th>Run at</th><th>Error</th><th /></tr></thead>
+                <tbody>
+                  <tr v-for="j in jobsData?.jobs ?? []" :key="j.id">
+                    <td><span class="mono text-xs">{{ j.kind }}</span><p v-if="j.idempotencyKey" class="text-[11px] text-fg-3 mono truncate max-w-64" :title="j.idempotencyKey">{{ j.idempotencyKey }}</p></td>
+                    <td><span class="pill" :class="jobTone[j.status]">{{ j.status }}</span></td>
+                    <td class="num text-xs">{{ j.attempts }}/{{ j.maxAttempts }}</td>
+                    <td class="text-xs text-fg-3 whitespace-nowrap">{{ fmtDate(j.runAt, 'time') }}<p v-if="j.completedAt">done {{ relTime(j.completedAt) }}</p></td>
+                    <td class="text-xs text-garnet-500 max-w-64 truncate" :title="j.lastError ?? ''">{{ j.lastError ?? '' }}</td>
+                    <td class="text-right"><button v-if="['failed', 'dead'].includes(j.status)" class="btn btn-secondary btn-sm" :disabled="busy === `job-${j.id}`" @click="retryJob(j.id)">Retry</button></td>
+                  </tr>
+                  <tr v-if="!jobsData?.jobs.length"><td colspan="6"><EmptyState compact icon="lucide:list-checks" title="No jobs" /></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section v-for="p in data.rulePacks" :key="p.id" class="card">
+            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">{{ p.id }} <span class="text-fg-3 font-normal text-sm">v{{ p.version }}</span></h2><p class="text-xs text-fg-2 mt-0.5">{{ p.description }}</p><p class="text-[11px] text-fg-3 mt-1">{{ p.disclaimer }}</p></div>
+            <ul class="divide-y divide-border">
+              <li v-for="r in p.rules" :key="r.id" class="px-5 py-4 text-sm">
+                <details>
+                  <summary class="cursor-pointer flex flex-wrap items-center gap-2"><span class="font-medium">{{ r.title }}</span><span class="pill bg-surface-3 text-fg-2">{{ ISSUE_CATEGORY_LABEL[r.category] }}</span><span class="pill" :class="TONE_CLASS[r.severity === 'critical' || r.severity === 'high' ? 'danger' : r.severity === 'medium' ? 'warning' : 'neutral']">{{ r.severity }}</span><span class="text-xs text-fg-3 ml-auto">{{ REMEDY_CHANNEL_LABEL[r.channel] }}</span></summary>
+                  <div class="mt-3 grid gap-3 sm:grid-cols-2 text-xs">
+                    <p class="sm:col-span-2 text-fg-2">{{ r.description }}</p>
+                    <div><p class="eyebrow">Disputable when</p><p class="mt-0.5">{{ r.disputableWhen }}</p></div>
+                    <div><p class="eyebrow">Not disputable when</p><p class="mt-0.5">{{ r.notDisputableWhen }}</p></div>
+                    <div><p class="eyebrow">Evidence requirements</p><ul class="mt-0.5 space-y-0.5"><li v-for="e in r.evidenceRequirements" :key="e">· {{ e }}</li></ul></div>
+                    <div><p class="eyebrow">Legal basis (informational)</p><ul class="mt-0.5 space-y-0.5"><li v-for="l in r.legalBasis" :key="l.cite"><span class="font-medium">{{ l.cite }}</span> · {{ l.label }}</li></ul><p class="mt-1 text-fg-3">Base confidence {{ Math.round(r.baseConfidence * 100) }}% · typical window {{ r.typicalReviewWindow }}</p></div>
+                  </div>
+                </details>
+              </li>
+            </ul>
+          </section>
+          <section class="card">
+            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">System</h2></div>
+            <dl class="px-5 py-4 grid gap-3 sm:grid-cols-2 text-sm">
+              <div><dt class="text-xs text-fg-3">Version</dt><dd class="mono">{{ data.app.version }}</dd></div>
+              <div><dt class="text-xs text-fg-3">App mode</dt><dd><ModeBadge :mode="data.app.mode" size="sm" /></dd></div>
+              <div><dt class="text-xs text-fg-3">Encryption key</dt><dd>{{ data.app.encryptionConfigured ? 'configured' : 'missing — secrets cannot be stored' }}</dd></div>
+              <div><dt class="text-xs text-fg-3">Data directory</dt><dd class="mono text-xs">{{ data.app.dataDir }}</dd></div>
+              <div class="sm:col-span-2"><dt class="text-xs text-fg-3">Boot</dt><dd><pre class="mono text-xs bg-surface-2 rounded p-2 overflow-x-auto">{{ JSON.stringify(data.app.boot, null, 2) }}</pre></dd></div>
+            </dl>
+          </section>
         </template>
 
-        <!-- Profile -->
-        <template v-else-if="section === 'profile'">
+        <!-- Account -->
+        <template v-else-if="section === 'account'">
           <section class="card">
             <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Profile & return address</h2><p class="text-xs text-fg-3">The return address is printed on every letter and used by mail providers. Letters cannot be approved without a complete address.</p></div>
             <form class="px-5 py-4 space-y-4" @submit.prevent="saveProfile">
@@ -573,96 +656,11 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
               <div class="sm:col-span-3 flex justify-end"><button class="btn btn-secondary" type="submit" :disabled="busy === 'password'">Change password</button></div>
             </form>
           </section>
-          <section class="card card-pad flex flex-wrap items-center gap-3 text-sm">
-            <div class="flex-1"><p class="font-medium">Session</p><p class="text-xs text-fg-3">Signed in as {{ data.profile.email }} · last login {{ fmtDate(data.profile.lastLoginAt, 'time') }}</p></div>
-            <button class="btn btn-ghost" @click="logout"><Icon name="lucide:log-out" class="size-4" /> Sign out</button>
-          </section>
-        </template>
-
-        <!-- Providers -->
-        <template v-else-if="section === 'providers'">
-          <section class="card">
-            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Integration status</h2><p class="text-xs text-fg-3">Configured through environment variables (Dokploy → Environment). See <span class="mono">INTEGRATIONS.md</span> for every variable and what each provider actually supports.</p></div>
-            <div class="divide-y divide-border text-sm">
-              <div class="px-5 py-4">
-                <p class="eyebrow mb-2">Outbound mail <span class="normal-case tracking-normal text-fg-3">· active: {{ data.outbound.active }} · webhook secret {{ data.outbound.webhookSecretConfigured ? 'set' : 'using sandbox default' }}</span></p>
-                <ul class="space-y-2">
-                  <li v-for="p in data.outbound.providers" :key="p.slug" class="flex flex-wrap items-center gap-2"><span class="font-medium w-40">{{ p.label }}</span><ModeBadge :mode="p.mode" /><span class="pill" :class="p.configured ? TONE_CLASS.success : TONE_CLASS.neutral">{{ p.configured ? 'configured' : 'not configured' }}</span><span v-if="p.active" class="pill" :class="TONE_CLASS.live">active</span><span class="text-xs text-fg-3 basis-full sm:basis-auto sm:ml-2">{{ p.configurationHelp }}</span></li>
-                </ul>
-              </div>
-              <div class="px-5 py-4">
-                <p class="eyebrow mb-2">Inbound mail <span class="normal-case tracking-normal text-fg-3">· active: {{ data.inbound.active }}</span></p>
-                <ul class="space-y-2">
-                  <li v-for="p in data.inbound.providers" :key="p.slug" class="flex flex-wrap items-center gap-2"><span class="font-medium w-40">{{ p.label }}</span><ModeBadge :mode="p.mode" /><span class="pill" :class="p.configured ? TONE_CLASS.success : TONE_CLASS.neutral">{{ p.configured ? 'configured' : 'not configured' }}</span><span class="text-xs text-fg-3 basis-full sm:basis-auto sm:ml-2">{{ p.configurationHelp }}</span></li>
-                </ul>
-              </div>
-              <div class="px-5 py-4">
-                <p class="eyebrow mb-2">Data connections</p>
-                <ul v-if="data.connections.length" class="space-y-2">
-                  <li v-for="c in data.connections" :key="c.id" class="flex flex-wrap items-center gap-2"><span class="font-medium w-40">{{ titleize(c.provider) }}</span><span class="pill bg-surface-3 text-fg-2">{{ titleize(c.kind) }}</span><ModeBadge :mode="c.mode" /><span class="pill" :class="c.status === 'healthy' ? TONE_CLASS.live : ['failed', 'expired', 'degraded'].includes(c.status) ? TONE_CLASS.danger : TONE_CLASS.neutral">{{ titleize(c.status) }}</span><span v-if="c.lastCheckedAt" class="text-xs text-fg-3">checked {{ relTime(c.lastCheckedAt) }}</span></li>
-                </ul>
-                <p v-else class="text-xs text-fg-3">No provider connections recorded.</p>
-              </div>
-            </div>
-          </section>
-        </template>
-
-        <!-- Jobs -->
-        <template v-else-if="section === 'jobs'">
-          <section class="card">
-            <div class="px-5 py-4 border-b border-border flex flex-wrap items-center gap-2">
-              <h2 class="font-semibold">Job queue</h2>
-              <div class="flex gap-1.5 ml-auto"><span v-for="(n, s) in jobsData?.counts ?? {}" :key="s" class="pill" :class="jobTone[String(s)] ?? TONE_CLASS.neutral">{{ n }} {{ s }}</span></div>
-              <button class="btn btn-ghost btn-sm" @click="refreshJobs()"><Icon name="lucide:refresh-cw" class="size-3.5" /></button>
-            </div>
-            <p class="px-5 py-2 text-xs text-fg-3 border-b border-border">Postgres-backed queue with <span class="mono">FOR UPDATE SKIP LOCKED</span>, exponential retries and a dead-letter state. Idempotency keys prevent duplicate dispatches.</p>
-            <div class="overflow-x-auto">
-              <table class="table min-w-[720px]">
-                <thead><tr><th>Kind</th><th>Status</th><th>Attempts</th><th>Run at</th><th>Error</th><th /></tr></thead>
-                <tbody>
-                  <tr v-for="j in jobsData?.jobs ?? []" :key="j.id">
-                    <td><span class="mono text-xs">{{ j.kind }}</span><p v-if="j.idempotencyKey" class="text-[11px] text-fg-3 mono truncate max-w-64" :title="j.idempotencyKey">{{ j.idempotencyKey }}</p></td>
-                    <td><span class="pill" :class="jobTone[j.status]">{{ j.status }}</span></td>
-                    <td class="num text-xs">{{ j.attempts }}/{{ j.maxAttempts }}</td>
-                    <td class="text-xs text-fg-3 whitespace-nowrap">{{ fmtDate(j.runAt, 'time') }}<p v-if="j.completedAt">done {{ relTime(j.completedAt) }}</p></td>
-                    <td class="text-xs text-garnet-500 max-w-64 truncate" :title="j.lastError ?? ''">{{ j.lastError ?? '' }}</td>
-                    <td class="text-right"><button v-if="['failed', 'dead'].includes(j.status)" class="btn btn-secondary btn-sm" :disabled="busy === `job-${j.id}`" @click="retryJob(j.id)">Retry</button></td>
-                  </tr>
-                  <tr v-if="!jobsData?.jobs.length"><td colspan="6"><EmptyState compact icon="lucide:list-checks" title="No jobs" /></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </template>
-
-        <!-- Rules -->
-        <template v-else-if="section === 'rules'">
-          <section v-for="p in data.rulePacks" :key="p.id" class="card">
-            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">{{ p.id }} <span class="text-fg-3 font-normal text-sm">v{{ p.version }}</span></h2><p class="text-xs text-fg-2 mt-0.5">{{ p.description }}</p><p class="text-[11px] text-fg-3 mt-1">{{ p.disclaimer }}</p></div>
-            <ul class="divide-y divide-border">
-              <li v-for="r in p.rules" :key="r.id" class="px-5 py-4 text-sm">
-                <details>
-                  <summary class="cursor-pointer flex flex-wrap items-center gap-2"><span class="font-medium">{{ r.title }}</span><span class="pill bg-surface-3 text-fg-2">{{ ISSUE_CATEGORY_LABEL[r.category] }}</span><span class="pill" :class="TONE_CLASS[r.severity === 'critical' || r.severity === 'high' ? 'danger' : r.severity === 'medium' ? 'warning' : 'neutral']">{{ r.severity }}</span><span class="text-xs text-fg-3 ml-auto">{{ REMEDY_CHANNEL_LABEL[r.channel] }}</span></summary>
-                  <div class="mt-3 grid gap-3 sm:grid-cols-2 text-xs">
-                    <p class="sm:col-span-2 text-fg-2">{{ r.description }}</p>
-                    <div><p class="eyebrow">Disputable when</p><p class="mt-0.5">{{ r.disputableWhen }}</p></div>
-                    <div><p class="eyebrow">Not disputable when</p><p class="mt-0.5">{{ r.notDisputableWhen }}</p></div>
-                    <div><p class="eyebrow">Evidence requirements</p><ul class="mt-0.5 space-y-0.5"><li v-for="e in r.evidenceRequirements" :key="e">· {{ e }}</li></ul></div>
-                    <div><p class="eyebrow">Legal basis (informational)</p><ul class="mt-0.5 space-y-0.5"><li v-for="l in r.legalBasis" :key="l.cite"><span class="font-medium">{{ l.cite }}</span> · {{ l.label }}</li></ul><p class="mt-1 text-fg-3">Base confidence {{ Math.round(r.baseConfidence * 100) }}% · typical window {{ r.typicalReviewWindow }}</p></div>
-                  </div>
-                </details>
-              </li>
-            </ul>
-          </section>
-        </template>
-
-        <!-- System -->
-        <template v-else>
           <section class="card">
             <div class="card-head">
               <div>
                 <h2>Workspace mode</h2>
-                <p class="sub">Chosen here, not in the environment. Records keep the label they had when they were created.</p>
+                <p class="sub">Records keep the label they had when they were created.</p>
               </div>
               <ModeBadge :mode="data.app.mode" size="sm" />
             </div>
@@ -679,15 +677,9 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
               </button>
             </form>
           </section>
-          <section class="card">
-            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">System</h2></div>
-            <dl class="px-5 py-4 grid gap-3 sm:grid-cols-2 text-sm">
-              <div><dt class="text-xs text-fg-3">Version</dt><dd class="mono">{{ data.app.version }}</dd></div>
-              <div><dt class="text-xs text-fg-3">App mode</dt><dd><ModeBadge :mode="data.app.mode" size="sm" /></dd></div>
-              <div><dt class="text-xs text-fg-3">Encryption key</dt><dd>{{ data.app.encryptionConfigured ? 'configured' : 'missing — secrets cannot be stored' }}</dd></div>
-              <div><dt class="text-xs text-fg-3">Data directory</dt><dd class="mono text-xs">{{ data.app.dataDir }}</dd></div>
-              <div class="sm:col-span-2"><dt class="text-xs text-fg-3">Boot</dt><dd><pre class="mono text-xs bg-surface-2 rounded p-2 overflow-x-auto">{{ JSON.stringify(data.app.boot, null, 2) }}</pre></dd></div>
-            </dl>
+          <section class="card card-pad flex flex-wrap items-center gap-3 text-sm">
+            <div class="flex-1"><p class="font-medium">Session</p><p class="text-xs text-fg-3">Signed in as {{ data.profile.email }} · last login {{ fmtDate(data.profile.lastLoginAt, 'time') }}</p></div>
+            <button class="btn btn-ghost" @click="logout"><Icon name="lucide:log-out" class="size-4" /> Sign out</button>
           </section>
         </template>
       </div>

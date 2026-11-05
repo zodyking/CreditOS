@@ -62,7 +62,7 @@ export default defineEventHandler(async event => {
   const outbound = getOutboundProvider()
   const inbound = activeInboundProvider()
   const blocked = [
-    ...connections.filter(c => ['failed', 'expired', 'degraded', 'not_connected'].includes(c.status) && c.kind === 'credit_data').map(c => ({ provider: c.provider, kind: c.kind, status: c.status, error: c.lastError })),
+    ...connections.filter(c => ['failed', 'expired', 'degraded'].includes(c.status) && c.kind === 'credit_data').map(c => ({ provider: c.provider, kind: c.kind, status: c.status, error: c.lastError })),
     ...(aiKey.key ? [] : [{ provider: 'openrouter', kind: 'ai', status: 'not_connected', error: 'No OpenRouter key — council runs in demo simulator mode.' }]),
   ]
 

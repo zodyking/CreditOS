@@ -131,9 +131,8 @@ const bureauTile: Record<string, string> = { equifax: 'bg-garnet-100 text-garnet
             </dl>
             <p class="mt-4 text-xs text-fg-3 flex items-center gap-1.5">
               <Icon name="lucide:clock" class="size-3.5" />
-              <template v-if="b.connection?.status === 'not_connected'">No licensed bureau connection — import reports manually.</template>
-              <template v-else-if="b.connection?.lastCheckedAt">Checked {{ relTime(b.connection.lastCheckedAt) }} · next check {{ fmtDate(b.connection.nextEligibleCheckAt, 'short') }}</template>
-              <template v-else>Monitoring not yet checked.</template>
+              <template v-if="b.snapshot">Imported report</template>
+              <template v-else>No report imported yet</template>
             </p>
           </article>
         </div>

@@ -23,7 +23,7 @@ async function poll() {
   polling.value = true
   try {
     await $fetch('/api/monitoring/poll', { method: 'POST' })
-    toast.info('Check complete', 'Connected sources were polled (respecting cadence) and detection re-ran on stored snapshots.')
+    toast.info('Check complete', 'Detection ran on the reports already stored.')
     await refresh()
   } catch (e) {
     toast.error('Poll failed', errorMessage(e))
@@ -45,16 +45,6 @@ async function setStatus(id: string, status: 'reviewed' | 'dismissed' | 'suppres
   }
 }
 
-const connectionTone: Record<string, string> = {
-  connected: TONE_CLASS.live,
-  sandbox: TONE_CLASS.demo,
-  demo: TONE_CLASS.demo,
-  not_connected: TONE_CLASS.neutral,
-  error: TONE_CLASS.danger,
-  needs_reauth: TONE_CLASS.warning,
-  rate_limited: TONE_CLASS.warning,
-  disabled: TONE_CLASS.neutral,
-}
 </script>
 
 <template>
@@ -122,29 +112,15 @@ const connectionTone: Record<string, string> = {
           <EmptyState v-else compact icon="lucide:shield-check" title="No alerts match" description="Import a newer snapshot or relax the filters." />
         </div>
 
-        <div class="space-y-6">
-          <div class="card">
-            <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Data sources</h2></div>
-            <ul class="divide-y divide-border">
-              <li v-for="c in data.connections" :key="c.id" class="px-5 py-3">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="font-medium text-sm">{{ titleize(c.provider) }}</p>
-                  <span class="pill" :class="connectionTone[c.status] ?? TONE_CLASS.neutral">{{ titleize(c.status) }}</span>
-                </div>
-                <p class="text-xs text-fg-3 mt-1">
-                  <span v-if="c.lastCheckedAt">Checked {{ relTime(c.lastCheckedAt) }}</span><span v-else>Never checked</span>
-                  <span v-if="c.nextEligibleCheckAt"> · next eligible {{ relTime(c.nextEligibleCheckAt) }}</span>
-                </p>
-                <p v-if="c.lastError" class="text-xs text-garnet-500 mt-1">{{ c.lastError }}</p>
-              </li>
-              <li v-if="!data.connections.length" class="px-5 py-6 text-sm text-fg-3 text-center">No credit-data connection configured. Manual import is the only source in this build.</li>
-            </ul>
-          </div>
-          <div class="card card-pad text-sm text-fg-2 space-y-2">
-            <p class="font-medium text-fg">How polling works</p>
-            <p>Polling respects each provider's cadence and backoff; a manual check will not bypass a rate limit. In Demo mode "Check now" re-runs detection on the stored synthetic snapshots.</p>
-            <p>No consumer bureau offers a public monitoring API, so this build ships manual import plus the connector contract documented in <span class="mono">INTEGRATIONS.md</span>.</p>
-          </div>
+        <div class="card">
+          <div class="px-5 py-4 border-b border-border"><h2 class="font-semibold">Reports</h2></div>
+          <ul class="divide-y divide-border">
+            <li v-for="b in BUREAUS" :key="b" class="px-5 py-3 flex items-center justify-between gap-3">
+              <p class="font-medium text-sm">{{ bureauName(b) }}</p>
+              <span class="pill" :class="TONE_CLASS.neutral">{{ data.connections.some(c => c.mode === 'demo') ? 'Demo file' : 'Import' }}</span>
+            </li>
+          </ul>
+          <p class="px-5 py-3 text-xs text-fg-3 border-t border-border">Import a report from the Reports page. Check now compares the files already stored. A score appears only when that file includes one.</p>
         </div>
       </section>
     </template>

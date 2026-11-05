@@ -43,10 +43,15 @@ export function registerAllJobHandlers() {
     const userId = String(p.userId)
     const conns = await db.select().from(schema.providerConnections).where(and(eq(schema.providerConnections.userId, userId), eq(schema.providerConnections.kind, 'credit_data')))
     for (const c of conns) {
-      // No licensed bureau provider is wired; polling records an honest "checked, nothing new" with the next eligible time.
+      const manual = c.provider.startsWith('manual:') || c.provider.startsWith('demo:') || c.status === 'not_connected'
       await db
         .update(schema.providerConnections)
-        .set({ lastCheckedAt: new Date(), nextEligibleCheckAt: new Date(Date.now() + 24 * 60 * 60_000), status: c.mode === 'demo' ? 'healthy' : c.status === 'not_connected' ? 'not_connected' : c.status, lastError: c.mode === 'demo' ? null : 'No live credit-data provider connected; import reports manually.' })
+        .set({
+          lastCheckedAt: new Date(),
+          nextEligibleCheckAt: manual ? null : new Date(Date.now() + 24 * 60 * 60_000),
+          status: c.mode === 'demo' ? 'healthy' : c.status,
+          lastError: manual || c.mode === 'demo' ? null : c.lastError,
+        })
         .where(eq(schema.providerConnections.id, c.id))
     }
   })
