@@ -11,9 +11,10 @@ const { clear: clearSession } = useUserSession()
 const { data, refresh, pending } = await useFetch('/api/settings', { key: 'settings' })
 const { data: jobsData, refresh: refreshJobs } = await useFetch('/api/settings/jobs', { key: 'settings-jobs', lazy: true, server: false })
 
-type Section = 'database' | 'ai' | 'consents' | 'profile' | 'providers' | 'jobs' | 'rules' | 'system'
+type Section = 'database' | 'mail' | 'ai' | 'consents' | 'profile' | 'providers' | 'jobs' | 'rules' | 'system'
 const SECTIONS: { k: Section; l: string; i: string }[] = [
   { k: 'database', l: 'Database', i: 'lucide:database' },
+  { k: 'mail', l: 'Email', i: 'lucide:mail' },
   { k: 'ai', l: 'AI council (OpenRouter)', i: 'lucide:brain-circuit' },
   { k: 'consents', l: 'Consents & automation', i: 'lucide:shield-check' },
   { k: 'profile', l: 'Profile & address', i: 'lucide:user-round' },
@@ -152,6 +153,68 @@ async function saveDatabase() {
   }
 }
 
+type MailSecurity = 'ssl' | 'starttls' | 'none'
+const mailForm = reactive({
+  smtp: { host: '', port: 587, security: 'starttls' as MailSecurity, username: '', password: '', from: '' },
+  imap: { host: '', port: 993, security: 'ssl' as MailSecurity, username: '', password: '', mailbox: 'INBOX', poll: false },
+  notifyByEmail: false,
+})
+const mailTo = ref('')
+const mailNote = ref<string | null>(null)
+watch(
+  data,
+  d => {
+    if (!d?.mail) return
+    mailForm.smtp.host = d.mail.smtp.host
+    mailForm.smtp.port = d.mail.smtp.port
+    mailForm.smtp.security = d.mail.smtp.security
+    mailForm.smtp.username = d.mail.smtp.username
+    mailForm.smtp.from = d.mail.smtp.from
+    mailForm.smtp.password = ''
+    mailForm.imap.host = d.mail.imap.host
+    mailForm.imap.port = d.mail.imap.port
+    mailForm.imap.security = d.mail.imap.security
+    mailForm.imap.username = d.mail.imap.username
+    mailForm.imap.mailbox = d.mail.imap.mailbox || 'INBOX'
+    mailForm.imap.poll = d.mail.imap.poll
+    mailForm.imap.password = ''
+    mailForm.notifyByEmail = d.mail.notifyByEmail
+  },
+  { immediate: true },
+)
+function mailPayload(extra: { channel?: 'smtp' | 'imap'; to?: string; clearSmtp?: boolean; clearImap?: boolean } = {}) {
+  return {
+    smtp: { host: mailForm.smtp.host.trim(), port: Number(mailForm.smtp.port), security: mailForm.smtp.security, username: mailForm.smtp.username.trim(), from: mailForm.smtp.from.trim(), password: mailForm.smtp.password || undefined, clearPassword: extra.clearSmtp || undefined },
+    imap: { host: mailForm.imap.host.trim(), port: Number(mailForm.imap.port), security: mailForm.imap.security, username: mailForm.imap.username.trim(), mailbox: mailForm.imap.mailbox.trim() || 'INBOX', poll: mailForm.imap.poll, password: mailForm.imap.password || undefined, clearPassword: extra.clearImap || undefined },
+    notifyByEmail: mailForm.notifyByEmail,
+    channel: extra.channel,
+    to: extra.to,
+  }
+}
+function saveMail() {
+  mailNote.value = null
+  return run('mail', async () => {
+    await api('/api/settings/mail', { method: 'POST', body: mailPayload() })
+  }, 'Email settings saved')
+}
+function testMail(channel: 'smtp' | 'imap') {
+  mailNote.value = null
+  return run(`mail-${channel}`, async () => {
+    const r = await api<{ message: string }>('/api/settings/mail/test', { method: 'POST', body: mailPayload({ channel, to: channel === 'smtp' ? mailTo.value.trim() : undefined }) })
+    mailNote.value = r.message
+  })
+}
+function checkInbox() {
+  mailNote.value = null
+  return run('mail-poll', async () => {
+    const r = await api<{ imported: number }>('/api/settings/mail/poll', { method: 'POST', body: { scope: 'unseen' } })
+    mailNote.value = r.imported ? `Filed ${r.imported} message${r.imported === 1 ? '' : 's'} in the Mailroom.` : 'No unread mail to file.'
+  })
+}
+function clearMailPassword(kind: 'smtp' | 'imap') {
+  return run(`clear-${kind}`, () => api('/api/settings/mail', { method: 'POST', body: mailPayload(kind === 'smtp' ? { clearSmtp: true } : { clearImap: true }) }), 'Password removed')
+}
+
 const { refresh: refreshAppStatus } = useAppStatus()
 const workspaceMode = ref<'demo' | 'test' | 'live'>('demo')
 watch(
@@ -193,7 +256,7 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
 
 <template>
   <div>
-    <PageHeader title="Settings" eyebrow="Configuration" description="Database, model selection, consents, your mailing identity, integrations and the job queue. Secrets are encrypted at rest and never echoed back." />
+    <PageHeader title="Settings" eyebrow="Configuration" description="Database, email, model selection, consents, your mailing identity, integrations and the job queue. Secrets are encrypted at rest and never echoed back." />
 
     <div v-if="pending && !data" class="skeleton h-64" />
     <div v-else-if="data" class="grid gap-6 lg:grid-cols-4">
@@ -237,6 +300,151 @@ const jobTone: Record<string, string> = { pending: TONE_CLASS.info, running: TON
               </form>
             </div>
           </section>
+        </template>
+
+        <template v-else-if="section === 'mail'">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Your mailbox</h2>
+                <p class="sub">SMTP sends notification email. IMAP files new mail into the Mailroom. Passwords are encrypted on this server and are not shown again.</p>
+              </div>
+            </div>
+            <div class="px-5 sm:px-6 py-5 text-sm text-fg-2">
+              This connects to your own mail server. It does not sign in to Equifax, Experian, TransUnion, or any other bureau.
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>SMTP</h2>
+                <p class="sub">Outgoing mail. Port 587 with STARTTLS is the usual choice. Port 465 uses SSL.</p>
+              </div>
+              <span v-if="data.mail.smtpPasswordSet" class="pill" :class="TONE_CLASS.success">Password stored</span>
+            </div>
+            <form class="px-5 sm:px-6 py-5 space-y-4" @submit.prevent="saveMail">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="smtp-host" class="label">Host</label>
+                  <input id="smtp-host" v-model="mailForm.smtp.host" class="input" autocomplete="off" placeholder="smtp.example.com">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label for="smtp-port" class="label">Port</label>
+                    <input id="smtp-port" v-model.number="mailForm.smtp.port" type="number" min="1" max="65535" class="input" required>
+                  </div>
+                  <div>
+                    <label for="smtp-security" class="label">Security</label>
+                    <select id="smtp-security" v-model="mailForm.smtp.security" class="input">
+                      <option value="starttls">STARTTLS</option>
+                      <option value="ssl">SSL/TLS</option>
+                      <option value="none">None</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label for="smtp-user" class="label">Username</label>
+                  <input id="smtp-user" v-model="mailForm.smtp.username" class="input" autocomplete="off" placeholder="you@example.com">
+                </div>
+                <div>
+                  <label for="smtp-password" class="label">Password</label>
+                  <input id="smtp-password" v-model="mailForm.smtp.password" type="password" class="input" autocomplete="new-password" :placeholder="data.mail.smtpPasswordSet ? 'Saved password stays unless you replace it' : 'Mailbox password'">
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="smtp-from" class="label">From address</label>
+                  <input id="smtp-from" v-model="mailForm.smtp.from" class="input" autocomplete="off" placeholder="CreditOS &lt;you@example.com&gt;">
+                </div>
+              </div>
+              <label class="flex items-start gap-2 text-sm cursor-pointer">
+                <input v-model="mailForm.notifyByEmail" type="checkbox" class="mt-1 accent-[var(--accent)]">
+                <span>Email me when CreditOS raises a notification. The message goes to the address on your profile.</span>
+              </label>
+              <div class="flex flex-col sm:flex-row gap-2 sm:items-end">
+                <div class="flex-1">
+                  <label for="smtp-to" class="label">Send a test to</label>
+                  <input id="smtp-to" v-model="mailTo" type="email" class="input" :placeholder="data.profile.email">
+                </div>
+                <button type="button" class="btn btn-secondary" :disabled="busy === 'mail-smtp' || !mailForm.smtp.host" @click="testMail('smtp')">
+                  <Icon v-if="busy === 'mail-smtp'" name="lucide:loader-2" class="size-4 animate-spin" />
+                  {{ mailTo.trim() ? 'Send test' : 'Test connection' }}
+                </button>
+                <button v-if="data.mail.smtpPasswordSet" type="button" class="btn btn-ghost" :disabled="busy === 'clear-smtp'" @click="clearMailPassword('smtp')">Remove password</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>IMAP</h2>
+                <p class="sub">Inbox. Port 993 with SSL is the usual choice. Messages are not marked read.</p>
+              </div>
+              <span v-if="data.mail.imapPasswordSet" class="pill" :class="TONE_CLASS.success">Password stored</span>
+            </div>
+            <div class="px-5 sm:px-6 py-5 space-y-4">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="imap-host" class="label">Host</label>
+                  <input id="imap-host" v-model="mailForm.imap.host" class="input" autocomplete="off" placeholder="imap.example.com">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label for="imap-port" class="label">Port</label>
+                    <input id="imap-port" v-model.number="mailForm.imap.port" type="number" min="1" max="65535" class="input" required>
+                  </div>
+                  <div>
+                    <label for="imap-security" class="label">Security</label>
+                    <select id="imap-security" v-model="mailForm.imap.security" class="input">
+                      <option value="ssl">SSL/TLS</option>
+                      <option value="starttls">STARTTLS</option>
+                      <option value="none">None</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label for="imap-user" class="label">Username</label>
+                  <input id="imap-user" v-model="mailForm.imap.username" class="input" autocomplete="off" placeholder="you@example.com">
+                </div>
+                <div>
+                  <label for="imap-password" class="label">Password</label>
+                  <input id="imap-password" v-model="mailForm.imap.password" type="password" class="input" autocomplete="new-password" :placeholder="data.mail.imapPasswordSet ? 'Saved password stays unless you replace it' : 'Mailbox password'">
+                </div>
+                <div>
+                  <label for="imap-mailbox" class="label">Mailbox</label>
+                  <input id="imap-mailbox" v-model="mailForm.imap.mailbox" class="input" autocomplete="off" placeholder="INBOX">
+                </div>
+              </div>
+              <label class="flex items-start gap-2 text-sm cursor-pointer">
+                <input v-model="mailForm.imap.poll" type="checkbox" class="mt-1 accent-[var(--accent)]">
+                <span>Check for new mail every 15 minutes. The first check records where the mailbox is now and does not import older mail.</span>
+              </label>
+              <p class="hint">Check inbox files up to 20 unread messages. PDF, JPEG and PNG attachments are stored. A message without one of those is filed as a text PDF. Freeze confirmations still have to be recorded by you; reading the mailbox does not change a freeze.</p>
+              <div v-if="data.mail.imapLastCheckedAt || data.mail.imapLastError" class="text-sm">
+                <p v-if="data.mail.imapLastCheckedAt" class="text-fg-2">Last check {{ relTime(data.mail.imapLastCheckedAt) }}<span v-if="data.mail.imapLastImported"> · filed {{ data.mail.imapLastImported }}</span></p>
+                <p v-if="data.mail.imapLastError" class="text-garnet-600 mt-1">{{ data.mail.imapLastError }}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" class="btn btn-secondary" :disabled="busy === 'mail-imap' || !mailForm.imap.host" @click="testMail('imap')">
+                  <Icon v-if="busy === 'mail-imap'" name="lucide:loader-2" class="size-4 animate-spin" />
+                  Test connection
+                </button>
+                <button type="button" class="btn btn-secondary" :disabled="busy === 'mail-poll' || !data.mail.imapPasswordSet" @click="checkInbox">
+                  <Icon v-if="busy === 'mail-poll'" name="lucide:loader-2" class="size-4 animate-spin" />
+                  Check inbox
+                </button>
+                <button v-if="data.mail.imapPasswordSet" type="button" class="btn btn-ghost" :disabled="busy === 'clear-imap'" @click="clearMailPassword('imap')">Remove password</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button type="button" class="btn btn-primary" :disabled="busy === 'mail'" @click="saveMail">
+              <Icon v-if="busy === 'mail'" name="lucide:loader-2" class="size-4 animate-spin" />
+              Save email settings
+            </button>
+            <p v-if="mailNote" class="text-sm text-fg-2">{{ mailNote }}</p>
+          </div>
         </template>
 
         <!-- AI -->

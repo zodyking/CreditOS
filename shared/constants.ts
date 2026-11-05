@@ -232,6 +232,7 @@ export const JOB_KINDS = [
   'inbound.match',
   'deadline.check',
   'notification.send',
+  'mail.imap_poll',
 ] as const
 export type JobKind = (typeof JOB_KINDS)[number]
 

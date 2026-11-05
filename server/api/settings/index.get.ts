@@ -10,15 +10,17 @@ import { activeInboundProvider, inboundProviders } from '../../domains/mailroom/
 import { listRulePacks, resolveLegalBasis } from '../../domains/rules/engine'
 import { getBootState } from '../../plugins/boot'
 import { databasePublicStatus } from '../../utils/database-store'
+import { getMailPublic } from '../../domains/email/config'
 
 export default defineEventHandler(async event => {
   const user = await requireUser(event)
   const db = getDb()
-  const [aiConfig, key, consentRows, connections] = await Promise.all([
+  const [aiConfig, key, consentRows, connections, mail] = await Promise.all([
     getAiConfig(),
     resolveOpenRouterKey(),
     db.select().from(schema.consents).where(eq(schema.consents.userId, user.id)),
     db.select().from(schema.providerConnections).where(eq(schema.providerConnections.userId, user.id)),
+    getMailPublic(),
   ])
   return {
     profile: {
@@ -34,6 +36,7 @@ export default defineEventHandler(async event => {
     },
     app: { mode: env.appMode, version: useRuntimeConfig().public.appVersion, boot: getBootState(), encryptionConfigured: !!env.encryptionKey, dataDir: env.dataDir },
     database: databasePublicStatus(),
+    mail,
     ai: {
       ...aiConfig,
       keyConfigured: !!key.key,

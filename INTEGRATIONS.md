@@ -126,6 +126,8 @@ Adapter interface: `server/domains/mailroom/providers.ts` (`listNewItems`, `requ
 | PostScan Mail (`postscan`) | **Blocked on provider approval** | Scaffold only. Envelope-scan vs full-content-scan distinction is modelled in the inbound state machine (`RECEIVED_ENVELOPE → AWAITING_CONTENT_SCAN → SCANNED`), but no PostScan API call is made. |
 | Earth Class Mail (`earthclass`) | **Blocked on provider approval** | Scaffold only, same as above. |
 | OCR for image scans | **Not implemented** | Images are stored as evidence and flagged; a manual transcription unlocks analysis. |
+| IMAP inbox (Settings → Email) | **Implemented** | Connects to the mailbox you configure. PDF, JPEG and PNG attachments are filed in the Mailroom; other messages are filed as a text PDF. The first scheduled check records the current mailbox position and does not import older mail. Messages are fetched with `BODY.PEEK`, so they stay unread. |
+| SMTP (Settings → Email) | **Implemented** | Connection test, optional test message, and notification email to the profile address when that option is on. Passwords are stored AES-256-GCM encrypted. Dispute letters are still physical mail, not SMTP. |
 
 ---
 
@@ -148,7 +150,8 @@ Published contact details carry a `lastVerifiedAt` date in the UI and should be 
 | Channel | Status |
 | --- | --- |
 | In-app notifications + server-sent events | **Implemented** |
-| Email / SMS / push | **Not implemented** (P2) |
+| Email | **Implemented** when SMTP is saved under Settings → Email and "Email me when CreditOS raises a notification" is on. The message goes to the profile address. |
+| SMS / push | **Not implemented** |
 
 ---
 

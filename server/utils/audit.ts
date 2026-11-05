@@ -61,4 +61,10 @@ export async function notify(
     })
     .returning()
   liveBus.publish('notification', { ...row }, userId)
+  const { getMailConfig } = await import('../domains/email/config')
+  const { enqueueJob } = await import('../domains/jobs/queue')
+  const cfg = await getMailConfig().catch(() => null)
+  if (row && cfg?.notifyByEmail && cfg.smtp.host && cfg.smtp.from) {
+    await enqueueJob('notification.send', { userId, title: input.title, body: input.body ?? '', href: input.href ?? '' }, { idempotencyKey: `notify-email:${row.id}` }).catch(() => null)
+  }
 }

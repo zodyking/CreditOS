@@ -6,6 +6,8 @@ import { runCouncil } from '../council/orchestrator'
 import { dispatchMailOrder, pollOrderStatus } from '../correspondence/mail'
 import { analyzeInbound, extractInbound } from '../mailroom/service'
 import { runDiscrepancyDetection } from '../reports/service'
+import { pollImap } from '../email/poll'
+import { sendNotificationEmail } from '../email/smtp'
 import { enqueueJob, registerJobHandler } from './queue'
 
 export function registerAllJobHandlers() {
@@ -58,8 +60,15 @@ export function registerAllJobHandlers() {
       await notify(c.userId, { kind: 'deadline', title: `${c.code}: no response by review point`, href: `/cases/${caseId}`, severity: 'high' })
     }
   })
-  registerJobHandler('notification.send', async () => {
-    /* in-app notifications are written directly; external channels are P2 */
+  registerJobHandler('notification.send', async p => {
+    const userId = String(p.userId ?? '')
+    if (!userId) return
+    const user = await getDb().query.users.findFirst({ where: eq(schema.users.id, userId) })
+    if (!user?.email) return
+    await sendNotificationEmail(user.email, { title: String(p.title ?? 'CreditOS'), body: p.body ? String(p.body) : undefined, href: p.href ? String(p.href) : undefined })
+  })
+  registerJobHandler('mail.imap_poll', async () => {
+    await pollImap('new')
   })
 }
 
@@ -70,6 +79,12 @@ export async function scheduleRecurring() {
   const hour = new Date().toISOString().slice(0, 13)
   for (const u of users) {
     await enqueueJob('monitoring.poll', { userId: u.id }, { idempotencyKey: `monitoring.poll:${u.id}:${hour}` })
+  }
+  const { getMailConfig } = await import('../email/config')
+  const mail = await getMailConfig().catch(() => null)
+  if (mail?.imap.poll && mail.imap.host) {
+    const slot = Math.floor(Date.now() / (15 * 60_000))
+    await enqueueJob('mail.imap_poll', {}, { idempotencyKey: `mail.imap:${slot}` })
   }
   // Promote overdue next actions to notifications (daily key).
   const day = new Date().toISOString().slice(0, 10)

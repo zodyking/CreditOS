@@ -31,10 +31,15 @@ export async function transitionInbound(id: string, to: InboundStatus, patch: Pa
  */
 export async function ingestManualUpload(
   userId: string,
-  input: { buffer: Buffer; filename: string; senderName?: string; caseId?: string; mode?: DataMode; receivedAt?: Date },
+  input: { buffer: Buffer; filename: string; senderName?: string; caseId?: string; mode?: DataMode; receivedAt?: Date; provider?: string; externalId?: string },
 ): Promise<InboundMail> {
   const db = getDb()
-  const doc = await storeDocument({ userId, buffer: input.buffer, filename: input.filename, kind: 'inbound_scan', source: 'upload', mode: input.mode ?? 'live', caseId: input.caseId ?? null, title: `Inbound mail: ${input.filename}` })
+  const provider = input.provider ?? 'manual'
+  if (input.externalId) {
+    const existing = await db.query.inboundMail.findFirst({ where: and(eq(schema.inboundMail.provider, provider), eq(schema.inboundMail.externalId, input.externalId)) })
+    if (existing) return existing
+  }
+  const doc = await storeDocument({ userId, buffer: input.buffer, filename: input.filename, kind: 'inbound_scan', source: input.provider === 'imap' ? 'imap' : 'upload', mode: input.mode ?? 'live', caseId: input.caseId ?? null, title: `Inbound mail: ${input.filename}` })
 
   // Duplicate detection by content hash
   const dup = await db
@@ -48,7 +53,8 @@ export async function ingestManualUpload(
     .insert(schema.inboundMail)
     .values({
       userId,
-      provider: 'manual',
+      provider,
+      externalId: input.externalId ?? null,
       mode: input.mode ?? 'live',
       status: 'RECEIVED_ENVELOPE',
       senderName: input.senderName ?? null,

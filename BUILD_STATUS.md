@@ -102,7 +102,7 @@ Last updated for `v1.1.0`.
 | --- | --- |
 | Bureau PDF report parsing | **Not implemented** |
 | User confirmation for ambiguous account matches | **Not implemented** (matching is deterministic by brand + last four; unmatched accounts stay separate) |
-| Email / SMS / push notifications | **Not implemented** (in-app + SSE only) |
+| Email notifications | **Implemented** when SMTP is saved in Settings and notification email is turned on. SMS and push are not implemented. |
 | Multi-user accounts | **Not implemented** (single owner) |
 | OCR for image scans | **Not implemented** (manual transcription path provided) |
 | Scheduled temporary freeze lifts | **Implemented** (lift windows recorded; execution is guided, not automated) |
