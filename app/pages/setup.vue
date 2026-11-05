@@ -45,47 +45,66 @@ async function connect() {
 </script>
 
 <template>
-  <div>
-    <h1 class="text-[1.75rem] font-semibold tracking-[-0.02em]">{{ needsDatabase && needsMode ? 'Setup' : needsMode ? 'Mode' : 'Database' }}</h1>
-    <p class="mt-2 text-sm text-fg-2 leading-relaxed max-w-md">
-      <template v-if="needsDatabase && needsMode">Pick a mode, then paste the Postgres connection string.</template>
-      <template v-else-if="needsMode">Saved on this server. You can change it in Settings.</template>
-      <template v-else>The last connection did not open. Paste a new one.</template>
-    </p>
+  <form class="max-w-3xl" @submit.prevent="connect">
+    <header class="mb-6">
+      <h1>Set up CreditOS</h1>
+      <p class="mt-2 text-sm text-fg-2 max-w-2xl">
+        <template v-if="needsMode && needsDatabase">Choose Demo, Test, or Live, then connect PostgreSQL. The mode can be changed later in Settings.</template>
+        <template v-else-if="needsMode">Choose Demo, Test, or Live. This can be changed later in Settings.</template>
+        <template v-else>The saved database connection did not open. Paste a new one.</template>
+      </p>
+    </header>
 
-    <p v-if="status?.bootError && status.databaseConfigured" class="mt-6 text-sm text-garnet-600" role="alert">{{ status.bootError }}</p>
-
-    <form class="mt-8 space-y-8" @submit.prevent="connect">
-      <fieldset v-if="needsMode">
-        <legend :class="needsDatabase ? 'text-sm font-medium' : 'sr-only'">Mode</legend>
-        <div class="mt-3 border-t border-border">
-          <label v-for="m in MODES" :key="m.id" class="flex items-baseline gap-3 py-3 border-b border-border cursor-pointer">
-            <input v-model="mode" type="radio" name="mode" class="accent-[var(--accent)]" :value="m.id" required>
-            <span class="w-14 shrink-0 text-sm font-medium">{{ m.title }}</span>
-            <span class="text-sm text-fg-2">{{ m.body }}</span>
-          </label>
+    <div class="space-y-6">
+      <section v-if="needsMode" class="card">
+        <div class="card-head">
+          <div>
+            <h2>Mode</h2>
+            <p class="sub">Demo includes sample reports. Test and Live start empty.</p>
+          </div>
         </div>
-      </fieldset>
+        <fieldset>
+          <legend class="sr-only">Mode</legend>
+          <div class="divide-y divide-border">
+            <label v-for="m in MODES" :key="m.id" class="relative flex items-start gap-4 px-5 sm:px-6 py-4 cursor-pointer" :class="mode === m.id ? 'bg-surface-2' : 'hover:bg-surface-2/70'">
+              <span v-if="mode === m.id" class="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full bg-accent" aria-hidden="true" />
+              <input v-model="mode" type="radio" name="mode" class="mt-1 accent-[var(--accent)]" :value="m.id" required>
+              <span>
+                <span class="block text-sm font-semibold">{{ m.title }}</span>
+                <span class="block text-sm text-fg-2 mt-0.5">{{ m.body }}</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+      </section>
 
-      <div v-if="needsDatabase">
-        <label for="connectionString" class="label">PostgreSQL</label>
-        <div class="relative">
-          <input id="connectionString" v-model="connectionString" :type="show ? 'text' : 'password'" class="input pr-12 font-mono text-[13px]" autocomplete="off" autocapitalize="off" spellcheck="false" required placeholder="postgresql://user:password@db:5432/creditos">
-          <button type="button" class="absolute right-1.5 top-1.5 btn btn-ghost btn-xs !px-2" :aria-label="show ? 'Hide connection string' : 'Show connection string'" @click="show = !show">
-            <Icon :name="show ? 'lucide:eye-off' : 'lucide:eye'" class="size-4" />
-          </button>
+      <section v-if="needsDatabase" class="card">
+        <div class="card-head">
+          <div>
+            <h2>PostgreSQL</h2>
+            <p class="sub">Paste a connection string this server can reach. It is stored encrypted.</p>
+          </div>
         </div>
-        <p class="hint">Use an address this server can reach. On Dokploy that is the database service, not localhost.</p>
-      </div>
+        <div class="px-5 sm:px-6 py-5">
+          <p v-if="status?.bootError && status.databaseConfigured" class="mb-4 text-sm text-garnet-600" role="alert">{{ status.bootError }}</p>
+          <label for="connectionString" class="label">Connection string</label>
+          <div class="relative">
+            <input id="connectionString" v-model="connectionString" :type="show ? 'text' : 'password'" class="input pr-12 font-mono text-[13px]" autocomplete="off" autocapitalize="off" spellcheck="false" required placeholder="postgresql://user:password@db:5432/creditos">
+            <button type="button" class="absolute right-1.5 top-1.5 btn btn-ghost btn-xs !px-2" :aria-label="show ? 'Hide connection string' : 'Show connection string'" @click="show = !show">
+              <Icon :name="show ? 'lucide:eye-off' : 'lucide:eye'" class="size-4" />
+            </button>
+          </div>
+          <p class="hint">On Dokploy, use the Postgres service's internal address, not localhost.</p>
+        </div>
+      </section>
+    </div>
 
-      <p v-if="error" class="text-sm text-garnet-600" role="alert">{{ error }}</p>
-
+    <div class="mt-6 flex flex-wrap items-center justify-end gap-4">
+      <p v-if="error" class="mr-auto text-sm text-garnet-600" role="alert">{{ error }}</p>
       <button type="submit" class="btn btn-primary" :disabled="busy || (needsMode && !mode) || (needsDatabase && connectionString.trim().length < 12)">
         <Icon v-if="busy" name="lucide:loader-2" class="size-4 animate-spin" />
         {{ busy ? 'Saving' : 'Continue' }}
       </button>
-    </form>
-
-    <p class="mt-16 text-xs text-fg-3">Not legal advice. Results are not guaranteed.</p>
-  </div>
+    </div>
+  </form>
 </template>
